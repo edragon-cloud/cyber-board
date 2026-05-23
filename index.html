@@ -3,1304 +3,1272 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ClassBoard – DNU</title>
+<title>Venus ClassBoard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* ============================================================
-   DESIGN: Dark utilitarian + sharp accent (classroom tool feel)
-   Font: DM Sans (UI) + Space Mono (labels/code)
-   ============================================================ */
-:root {
-  --bg:         #0e0f11;
-  --surface:    #16181c;
-  --surface2:   #1e2026;
-  --border:     #2a2d35;
-  --accent:     #4f8ef7;
-  --accent2:    #f76b4f;
-  --success:    #4fbe8a;
-  --text:       #e8eaf0;
-  --text-muted: #7a7f8e;
-  --font-ui:    'DM Sans', sans-serif;
-  --font-mono:  'Space Mono', monospace;
-  --radius:     8px;
-  --sidebar-w:  260px;
-  --toolbar-h:  52px;
+:root{--navy:#1a2e4a;--navy2:#243d60;--navy3:#0f1e31;--gold:#c9a84c;--gold2:#e2c87a;--gold3:#f5ecd0;--cream:#f5f0e8;--white:#fff;--tx:#1a2e4a;--tx2:#4a6080;--tx3:#8099b8;--ok:#2e7d52;--err:#b84040;--bdr:#c8d4e4;--bdr2:#dde6f0;--fd:'DM Sans',system-ui,sans-serif;--fs:'Cormorant Garamond',Georgia,serif;--fm:'DM Mono',monospace;--r:6px;--rl:12px;--sh:0 2px 12px rgba(26,46,74,.1);--shl:0 8px 32px rgba(26,46,74,.16);--tbh:56px;--sbw:290px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--fd);background:var(--cream);color:var(--tx);font-size:14px;line-height:1.5}
+.screen{position:fixed;inset:0;display:none}.screen.active{display:flex}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;border-radius:var(--r);padding:8px 16px;font-family:var(--fd);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
+.btn-gold{background:var(--gold);color:var(--navy3)}.btn-gold:hover{background:var(--gold2)}
+.btn-ghost{background:transparent;color:var(--tx2);border:1.5px solid var(--bdr)}.btn-ghost:hover{border-color:var(--navy);color:var(--navy)}
+.btn-err{background:rgba(184,64,64,.1);color:var(--err);border:1.5px solid rgba(184,64,64,.2)}.btn-err:hover{background:rgba(184,64,64,.2)}
+.btn-ok{background:rgba(46,125,82,.1);color:var(--ok);border:1.5px solid rgba(46,125,82,.2)}.btn-ok:hover{background:rgba(46,125,82,.2)}
+.btn-sm{padding:5px 10px;font-size:12px}.btn-full{width:100%;padding:12px;font-size:15px}
+.fg{margin-bottom:13px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.fi{width:100%;background:var(--white);border:1.5px solid var(--bdr);border-radius:var(--r);padding:9px 12px;color:var(--tx);font-family:var(--fd);font-size:14px;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--navy)}.fi::placeholder{color:var(--tx3)}
+.frow{display:flex;gap:10px}.frow .fg{flex:1}
+.ferr{color:var(--err);font-size:12px;margin-top:8px;min-height:16px}
+.moverlay{display:none;position:fixed;inset:0;background:rgba(15,30,49,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center}
+.moverlay.open{display:flex}
+.modal{background:var(--white);border-radius:var(--rl);padding:26px;width:440px;max-width:95vw;box-shadow:var(--shl);max-height:90vh;overflow-y:auto}
+.modal-h{font-family:var(--fs);font-size:19px;font-weight:600;color:var(--navy);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bdr2)}
+.modal-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;padding-top:13px;border-top:1px solid var(--bdr2)}
+#toast{position:fixed;bottom:22px;right:22px;z-index:9999;background:var(--navy);color:#fff;border-radius:var(--rl);padding:11px 18px;font-size:13px;font-weight:500;border-left:4px solid var(--gold);box-shadow:var(--shl);transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);max-width:300px}
+#toast.show{transform:translateY(0);opacity:1}#toast.err{border-left-color:var(--err)}#toast.ok{border-left-color:var(--ok)}
+.topbar{height:var(--tbh);min-height:var(--tbh);background:var(--navy);display:flex;align-items:center;padding:0 20px;gap:12px;border-bottom:3px solid var(--gold);z-index:10;flex-shrink:0}
+.tb-brand{font-family:var(--fs);font-size:20px;font-weight:700;color:#fff}.tb-brand b{color:var(--gold)}
+.tb-sep{width:1px;height:22px;background:rgba(255,255,255,.15)}
+.tb-sub{font-size:13px;color:rgba(255,255,255,.45)}.tb-r{margin-left:auto;display:flex;align-items:center;gap:10px}
+.uchip{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:5px 13px 5px 7px}
+.uav{width:26px;height:26px;border-radius:50%;background:var(--gold);color:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.unm{font-size:13px;color:#fff;font-weight:500}
+.ubadge{font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:20px}
+.ubadge.teacher{background:rgba(201,168,76,.2);color:var(--gold2);border:1px solid rgba(201,168,76,.3)}
+.ubadge.student{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.15)}
+.btn-lo{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.55);border-radius:var(--r);padding:6px 12px;font-size:12px;cursor:pointer;font-family:var(--fd);transition:all .15s}
+.btn-lo:hover{border-color:rgba(255,255,255,.5);color:#fff}
+#login-screen{align-items:center;justify-content:center;background:var(--navy3);background-image:radial-gradient(circle at 15% 85%,rgba(201,168,76,.12) 0,transparent 45%),radial-gradient(circle at 85% 15%,rgba(201,168,76,.08) 0,transparent 45%)}
+.lw{width:420px;max-width:96vw}
+.lhd{text-align:center;margin-bottom:26px}
+.llogo{display:inline-flex;align-items:center;justify-content:center;width:58px;height:58px;background:var(--gold);border-radius:14px;margin-bottom:12px}
+.llogo svg{width:32px;height:32px}
+.lbrand{font-family:var(--fs);font-size:28px;font-weight:700;color:#fff}.lbrand b{color:var(--gold)}
+.ltag{color:rgba(255,255,255,.4);font-size:13px;margin-top:3px}
+.lcard{background:var(--white);border-radius:var(--rl);overflow:hidden;box-shadow:var(--shl)}
+.ltabs{display:flex;background:var(--cream);border-bottom:1px solid var(--bdr2)}
+.ltab{flex:1;padding:13px;text-align:center;font-size:13px;font-weight:600;color:var(--tx3);cursor:pointer;border-bottom:2.5px solid transparent;transition:all .2s}
+.ltab.on{color:var(--navy);border-bottom-color:var(--gold);background:var(--white)}
+.lpane{display:none;padding:24px}.lpane.on{display:block}
+.tlink{display:block;text-align:center;margin-top:13px;font-size:12px;color:var(--tx3);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.tlink:hover{color:var(--navy)}
+#class-screen{flex-direction:column}
+.cb{flex:1;overflow-y:auto;padding:32px;display:flex;flex-direction:column;align-items:center}
+.ch{font-family:var(--fs);font-size:26px;font-weight:600;color:var(--navy);margin-bottom:5px}
+.cs{color:var(--tx3);margin-bottom:26px;font-size:14px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;width:100%;max-width:860px;margin-bottom:22px}
+.ccard{background:var(--white);border:1.5px solid var(--bdr2);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all .2s;position:relative}
+.ccard:hover{border-color:var(--gold);box-shadow:0 4px 20px rgba(201,168,76,.15);transform:translateY(-2px)}
+.ccnm{font-family:var(--fs);font-size:18px;font-weight:600;color:var(--navy);margin-bottom:6px}
+.ccmeta{font-size:12px;color:var(--tx3);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cccode{font-family:var(--fm);font-size:11px;background:var(--gold3);color:#8a6a1a;padding:2px 8px;border-radius:4px;border:1px solid var(--gold)}
+.ccdel{position:absolute;top:12px;right:12px;background:transparent;border:none;color:var(--bdr);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:color .15s}
+.ccdel:hover{color:var(--err)}
+.cadd{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--white);border:2px dashed var(--bdr);border-radius:var(--rl);padding:20px;cursor:pointer;transition:all .2s;color:var(--tx3);font-weight:600;font-size:14px;width:100%;max-width:860px;font-family:var(--fd)}
+.cadd:hover{border-color:var(--gold);color:var(--navy);background:var(--gold3)}
+#dashboard-screen{flex-direction:column}
+.dbbody{flex:1;display:flex;overflow:hidden}
+.sidebar{width:var(--sbw);min-width:var(--sbw);background:var(--navy3);display:flex;flex-direction:column;overflow:hidden;border-right:1px solid rgba(255,255,255,.06)}
+.sbhd{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sbcnm{font-family:var(--fs);font-size:16px;font-weight:600;color:#fff;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sbcode{font-family:var(--fm);font-size:11px;color:var(--gold);opacity:.8}
+.sbtitle{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:rgba(255,255,255,.3);padding:10px 14px 6px}
+.pglist{flex:1;overflow-y:auto;padding:6px}
+.pgitem{padding:11px 12px;border-radius:var(--r);cursor:pointer;margin-bottom:3px;border:1px solid transparent;transition:all .15s}
+.pgitem:hover{background:rgba(255,255,255,.06)}
+.pgitem.sel{background:rgba(201,168,76,.12);border-color:rgba(201,168,76,.25)}
+.pgitem.isa{border-left:3px solid var(--gold)}
+.pititle{font-size:13px;font-weight:600;color:#fff;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pimeta{font-size:11px;color:rgba(255,255,255,.35);display:flex;gap:5px;align-items:center}
+.pidot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.pidot.active{background:#4bde80;animation:pa 2s infinite}.pidot.closed{background:rgba(255,255,255,.2)}
+@keyframes pa{0%{box-shadow:0 0 0 0 rgba(75,222,128,.4)}70%{box-shadow:0 0 0 7px rgba(75,222,128,0)}100%{box-shadow:0 0 0 0 rgba(75,222,128,0)}}
+.dbmain{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--cream)}
+.dbcon{flex:1;overflow-y:auto;padding:26px}
+.panel{background:var(--white);border:1px solid var(--bdr2);border-radius:var(--rl);padding:22px;margin-bottom:18px;box-shadow:var(--sh)}
+.phd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--bdr2)}
+.ptitle{font-family:var(--fs);font-size:15px;font-weight:600;color:var(--navy)}
+.dtable{width:100%;border-collapse:collapse}
+.dtable th{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);padding:7px 11px;border-bottom:2px solid var(--bdr2);text-align:left;background:var(--cream)}
+.dtable td{padding:10px 11px;border-bottom:1px solid var(--bdr2);font-size:13px}
+.dtable tr:last-child td{border-bottom:none}
+.dtable tr:hover td{background:var(--cream)}
+.svwel h2{font-family:var(--fs);font-size:24px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.svwel p{color:var(--tx3);margin-bottom:20px}
+.tipbox{background:var(--gold3);border:1px solid var(--gold);border-radius:var(--r);padding:12px 16px;font-size:13px;color:#8a6a1a;display:flex;gap:10px}
+#canvas-screen{flex-direction:column}
+.cvtb{height:var(--tbh);min-height:var(--tbh);background:var(--navy);border-bottom:3px solid var(--gold);display:flex;align-items:center;padding:0 12px;gap:8px;z-index:10;flex-shrink:0}
+.cvback{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.65);border-radius:var(--r);padding:6px 11px;font-size:12px;cursor:pointer;font-family:var(--fd);font-weight:500;transition:all .15s}
+.cvback:hover{color:#fff;border-color:rgba(255,255,255,.5)}
+.cvbadge{background:rgba(201,168,76,.2);color:var(--gold2);border:1px solid rgba(201,168,76,.3);padding:3px 9px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+.cvtitle{font-family:var(--fs);font-size:15px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
+.cvtbr{margin-left:auto;display:flex;gap:6px;align-items:center;flex-shrink:0}
+.savest{font-size:12px;color:rgba(255,255,255,.35);white-space:nowrap}
+.savest.dirty{color:#f5c842}.savest.clean{color:#4bde80}
+.ctb{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:rgba(255,255,255,.6);border-radius:var(--r);padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fd);transition:all .15s;white-space:nowrap}
+.ctb:hover{background:rgba(255,255,255,.13);color:#fff}
+.ctb.g{background:rgba(75,222,128,.12);color:#4bde80;border-color:rgba(75,222,128,.3)}.ctb.g:hover{background:rgba(75,222,128,.22)}
+.ctb.au{background:rgba(201,168,76,.2);color:var(--gold2);border-color:rgba(201,168,76,.3)}.ctb.au:hover{background:rgba(201,168,76,.35)}
+.ctb.rd{background:rgba(184,64,64,.12);color:#f08080;border-color:rgba(184,64,64,.25)}
+.ctoolbar{position:fixed;left:10px;top:50%;transform:translateY(-50%);background:var(--white);border:1.5px solid var(--bdr);border-radius:var(--rl);padding:7px 5px;display:flex;flex-direction:column;gap:2px;z-index:100;box-shadow:var(--sh)}
+.tbtn{width:37px;height:37px;border-radius:var(--r);border:none;background:transparent;color:var(--tx3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;position:relative}
+.tbtn:hover{background:var(--cream);color:var(--navy)}.tbtn.on{background:rgba(26,46,74,.1);color:var(--navy)}
+.tbtn.on::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--gold);border-radius:0 3px 3px 0}
+.tsep{height:1px;background:var(--bdr2);margin:3px 2px}
+.propsbar{position:fixed;top:calc(var(--tbh)+9px);left:50%;transform:translateX(-50%);background:var(--white);border:1.5px solid var(--bdr);border-radius:10px;padding:6px 13px;display:flex;align-items:center;gap:11px;z-index:100;box-shadow:var(--sh)}
+.plbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3)}
+.csw{width:23px;height:23px;border-radius:50%;border:2px solid var(--bdr);cursor:pointer;outline:none;appearance:none;-webkit-appearance:none;padding:0;overflow:hidden}
+.csw::-webkit-color-swatch-wrapper{padding:0}.csw::-webkit-color-swatch{border:none;border-radius:50%}
+.szsl{width:80px;accent-color:var(--navy);cursor:pointer}
+.szval{font-size:12px;color:var(--tx2);min-width:16px;font-weight:600}
+.cvarea{flex:1;position:relative;overflow:hidden;background:#f8f6f2}
+#cv{display:block;cursor:crosshair}
+.timerw{position:fixed;right:13px;top:calc(var(--tbh)+12px);background:var(--white);border:1.5px solid var(--bdr);border-radius:var(--rl);padding:15px 18px;z-index:100;min-width:170px;text-align:center;box-shadow:var(--sh);display:none}
+.timerw.on{display:block}
+.tdisp{font-family:var(--fs);font-size:38px;font-weight:700;color:var(--navy);letter-spacing:2px;margin-bottom:9px}
+.tdisp.warn{color:var(--err)}
+.tctrl{display:flex;gap:5px;justify-content:center;margin-bottom:9px}
+.tpres{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
+.tpre{background:var(--cream);border:1px solid var(--bdr);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:700;color:var(--tx2);cursor:pointer;font-family:var(--fd);transition:all .15s}
+.tpre:hover{border-color:var(--gold);color:var(--navy);background:var(--gold3)}
+.mmnode{position:absolute;background:var(--white);border:2px solid var(--navy);border-radius:8px;padding:7px 13px;min-width:76px;text-align:center;cursor:move;user-select:none;font-size:13px;font-weight:500;z-index:50;box-shadow:0 2px 8px rgba(26,46,74,.1)}
+.mmnode:focus{outline:none}
+#txov{display:none;position:fixed;z-index:200}
+#txf{background:var(--white);border:2px solid var(--gold);color:var(--navy);padding:6px 11px;font-family:var(--fd);font-size:15px;border-radius:var(--r);outline:none;min-width:140px;box-shadow:var(--sh)}
+.dropz{border:2px dashed var(--bdr);border-radius:var(--r);padding:30px;text-align:center;color:var(--tx3);cursor:pointer;transition:all .2s}
+.dropz:hover,.dropz.over{border-color:var(--gold);background:var(--gold3);color:var(--navy)}
+.shprog{background:var(--cream);border-radius:var(--r);padding:11px 13px;font-size:13px;color:var(--tx2);display:none;margin-top:10px}
+.shprog.on{display:block}
+.shsumm{background:var(--cream);border:1px solid var(--bdr2);border-radius:var(--r);padding:12px;font-size:12px;max-height:130px;overflow-y:auto;white-space:pre-wrap;font-family:var(--fm);color:var(--tx2)}
+#iblayer{position:absolute;inset:0;pointer-events:none;z-index:60;display:none}
+#iblayer.on{display:block}
+.svslot{position:absolute;width:200px;min-height:115px;background:rgba(255,255,255,.97);border:2px solid var(--bdr);border-radius:10px;box-shadow:0 3px 14px rgba(26,46,74,.12);pointer-events:all;display:flex;flex-direction:column;overflow:hidden;user-select:none;transition:box-shadow .15s,border-color .15s}
+.svslot:hover{box-shadow:0 6px 20px rgba(26,46,74,.17)}
+.svslot.mine{border-color:var(--gold)}.svslot.hassug{border-color:#e67e22}.svslot.done .slothd{background:var(--ok)}
+.slothd{display:flex;align-items:center;gap:5px;padding:6px 9px;background:var(--navy);cursor:move;flex-shrink:0}
+.slotn{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:var(--gold);color:var(--navy3);font-size:10px;font-weight:800;flex-shrink:0}
+.slotnm{font-size:11px;font-weight:700;color:rgba(255,255,255,.85);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slotdot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);flex-shrink:0}
+.slotdot.typing{background:#4bde80;animation:pa 1.5s infinite}.slotdot.done{background:var(--gold)}
+.slotta{flex:1;padding:7px 9px;font-family:var(--fd);font-size:13px;line-height:1.5;color:var(--tx);resize:none;border:none;outline:none;background:transparent;min-height:65px}
+.slotta:disabled{cursor:default;color:var(--tx)}
+.slotdiff{padding:5px 9px;font-size:12px;line-height:1.5;border-top:1px solid var(--bdr2);display:none}
+.slotdiff.on{display:block}
+.ddel{background:rgba(184,64,64,.15);color:var(--err);text-decoration:line-through;border-radius:2px;padding:0 2px}
+.dins{background:rgba(46,125,82,.15);color:var(--ok);border-radius:2px;padding:0 2px}
+.slotft{display:flex;gap:4px;padding:5px 7px;border-top:1px solid var(--bdr2);background:var(--cream);flex-shrink:0;flex-wrap:wrap;align-items:center}
+.sab{font-size:11px;font-weight:600;padding:3px 7px;border-radius:4px;cursor:pointer;border:none;font-family:var(--fd);transition:opacity .15s;line-height:1.4}
+.sab:hover{opacity:.8}
+.sab-s{background:var(--navy);color:#fff}
+.sab-sg{background:rgba(230,126,34,.12);color:#c0600a;border:1px solid rgba(230,126,34,.25)!important}
+.sab-ac{background:rgba(46,125,82,.12);color:var(--ok);border:1px solid rgba(46,125,82,.25)!important}
+.sab-rj{background:rgba(184,64,64,.1);color:var(--err);border:1px solid rgba(184,64,64,.2)!important}
+.sab-rn{background:transparent;color:var(--tx3);border:1px solid var(--bdr)!important}
+.sab-rz{margin-left:auto;background:transparent;color:var(--tx3);border:none!important;cursor:se-resize;font-size:14px;padding:2px 4px}
+.slotwait{font-size:11px;color:var(--tx3);margin:auto 0 auto 4px}
+.sampbox{position:absolute;width:330px;min-height:130px;background:var(--gold3);border:2px solid var(--gold);border-radius:10px;box-shadow:0 4px 18px rgba(201,168,76,.22);pointer-events:all;display:none;flex-direction:column;overflow:hidden;user-select:none}
+.sampbox.on{display:flex}
+.samphd{display:flex;align-items:center;gap:8px;padding:7px 11px;background:var(--gold);cursor:move}
+.samplbl{font-size:12px;font-weight:800;color:var(--navy3);text-transform:uppercase;letter-spacing:.3px;flex:1}
+.sampta{flex:1;padding:10px 12px;font-family:var(--fd);font-size:13px;line-height:1.6;color:var(--tx);resize:none;border:none;outline:none;background:transparent;min-height:80px}
+.sampft{border-top:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.1);padding:5px 8px;display:flex;gap:5px}
+#ibctrl{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--navy);border-radius:30px;padding:7px 16px;display:none;align-items:center;gap:9px;z-index:200;box-shadow:var(--shl);border:1px solid rgba(255,255,255,.1)}
+#ibctrl.on{display:flex}
+.iclbl{font-size:12px;color:rgba(255,255,255,.45);white-space:nowrap}
+.icsep{width:1px;height:16px;background:rgba(255,255,255,.15)}
+.icbtn{font-size:12px;font-weight:600;padding:5px 13px;border-radius:20px;cursor:pointer;border:none;font-family:var(--fd);transition:all .15s}
+.icbtn-s{background:var(--gold);color:var(--navy3)}.icbtn-s:hover{background:var(--gold2)}
+.icbtn-x{background:rgba(184,64,64,.18);color:#f08080;border:1px solid rgba(184,64,64,.28)}.icbtn-x:hover{background:rgba(184,64,64,.32)}
+#sugov{display:none;position:fixed;inset:0;background:rgba(15,30,49,.5);backdrop-filter:blur(3px);z-index:600;align-items:center;justify-content:center}
+#sugov.open{display:flex}
+.sugm{background:var(--white);border-radius:var(--rl);padding:24px;width:420px;max-width:95vw;box-shadow:var(--shl)}
+.sugm h3{font-family:var(--fs);font-size:17px;color:var(--navy);margin-bottom:5px}
+.sugsub{font-size:12px;color:var(--tx3);margin-bottom:13px}
+.sugorig{background:var(--cream);border:1px solid var(--bdr2);border-radius:var(--r);padding:9px 11px;font-size:13px;color:var(--tx2);margin-bottom:10px;max-height:90px;overflow-y:auto}
+.sugnew{width:100%;background:rgba(46,125,82,.04);border:1.5px solid rgba(46,125,82,.3);border-radius:var(--r);padding:9px 11px;font-family:var(--fd);font-size:13px;color:var(--tx);outline:none;resize:vertical;min-height:75px}
+.sugnew:focus{border-color:var(--ok)}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+/* ================================================================
+   DARK MODE
+   ================================================================ */
+body.dark{--navy:#c9a84c;--navy2:#e2c87a;--navy3:#1a1a2e;--gold:#c9a84c;--gold2:#e2c87a;--gold3:rgba(201,168,76,.12);--cream:#12121e;--cream2:#1a1a2e;--white:#1e1e30;--tx:#e8e4d8;--tx2:#a09880;--tx3:#605850;--bdr:#2e2e48;--bdr2:#252538;--sh:0 2px 12px rgba(0,0,0,.4);--shl:0 8px 32px rgba(0,0,0,.6)}
+body.dark .topbar,body.dark .cvtb{background:#0a0a14;border-bottom-color:#c9a84c}
+body.dark .sidebar{background:#0e0e1e}
+body.dark .ctoolbar,body.dark .propsbar,body.dark .timerw,body.dark .modal,body.dark .sugm{background:#1e1e30;border-color:#2e2e48}
+body.dark .svslot{background:rgba(30,30,48,.97);border-color:#2e2e48}
+body.dark .slothd{background:#0a0a14}
+body.dark .slotft,body.dark .sampft{background:#12121e}
+body.dark .sampbox{background:rgba(201,168,76,.08);border-color:rgba(201,168,76,.4)}
+body.dark .samphd{background:rgba(201,168,76,.3)}
+body.dark .lcard{background:#1e1e30}
+body.dark .ltabs{background:#12121e}
+body.dark .ltab.on{background:#1e1e30}
+body.dark .ccard{background:#1e1e30;border-color:#2e2e48}
+body.dark .panel{background:#1e1e30;border-color:#2e2e48}
+body.dark .mmnode{background:#1e1e30;border-color:#c9a84c}
+body.dark #cv{background:#16162a}
+body.dark .cvarea{background:#16162a}
+body.dark .dropz{border-color:#2e2e48}
+body.dark .fi{background:#12121e;border-color:#2e2e48;color:var(--tx)}
+body.dark .fi:focus{border-color:#c9a84c}
+body.dark .shsumm{background:#12121e}
+body.dark .share-prog,.dark .shprog{background:#12121e}
+body.dark .sugorig{background:#12121e}
+body.dark .sugnew{background:rgba(46,125,82,.1)}
+body.dark .dtable th{background:#12121e}
+body.dark .dtable tr:hover td{background:#12121e}
+body.dark input[type=color].csw{border-color:#2e2e48}
+
+/* ── Dark mode toggle btn ── */
+#dark-toggle{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:var(--r);padding:5px 10px;font-size:14px;cursor:pointer;line-height:1;transition:all .15s}
+#dark-toggle:hover{border-color:rgba(255,255,255,.5);color:#fff}
+
+/* ================================================================
+   CANVAS BACKGROUNDS
+   ================================================================ */
+.cvarea{background-color:#f8f6f2}
+/* Applied via JS canvas pattern */
+#bg-picker{position:fixed;right:13px;bottom:64px;background:var(--white);border:1.5px solid var(--bdr);border-radius:var(--rl);padding:12px 14px;z-index:100;box-shadow:var(--sh);display:none}
+#bg-picker.on{display:block}
+#bg-picker .bplbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:9px}
+.bg-opts{display:flex;gap:7px;flex-wrap:wrap}
+.bgopt{width:36px;height:36px;border-radius:6px;cursor:pointer;border:2px solid var(--bdr);transition:all .15s;position:relative;overflow:hidden}
+.bgopt:hover{border-color:var(--gold)}
+.bgopt.sel{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,168,76,.3)}
+.bgopt-white{background:#ffffff}
+.bgopt-cream{background:#f5f0e8}
+.bgopt-grid{background-image:linear-gradient(rgba(26,46,74,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(26,46,74,.12) 1px,transparent 1px);background-size:20px 20px;background-color:#fff}
+.bgopt-dot{background-image:radial-gradient(circle,rgba(26,46,74,.25) 1px,transparent 1px);background-size:18px 18px;background-color:#fff}
+.bgopt-yellow{background:#fef9e7}
+.bgopt-dark{background:#16162a}
+
+/* ================================================================
+   SPELL CHECK UI
+   ================================================================ */
+.sc-wrap{position:relative}
+.sc-indicator{position:absolute;bottom:6px;right:8px;font-size:11px;color:var(--tx3);display:flex;align-items:center;gap:4px;pointer-events:none;z-index:2}
+.sc-dot{width:7px;height:7px;border-radius:50%;background:var(--tx3);flex-shrink:0}
+.sc-dot.checking{background:#f5c842;animation:pulse-sc 1s infinite}
+.sc-dot.ok{background:var(--ok)}
+.sc-dot.err{background:var(--err)}
+@keyframes pulse-sc{0%,100%{opacity:1}50%{opacity:.3}}
+.sc-panel{position:absolute;bottom:calc(100% + 6px);left:0;right:0;background:var(--white);border:1.5px solid var(--bdr);border-radius:var(--rl);padding:12px 14px;box-shadow:var(--shl);z-index:300;font-size:13px;max-height:200px;overflow-y:auto;display:none}
+body.dark .sc-panel{background:#1e1e30;border-color:#2e2e48}
+.sc-panel.on{display:block}
+.sc-section{font-weight:700;color:var(--tx2);margin-bottom:6px;font-size:12px;text-transform:uppercase;letter-spacing:.4px}
+.sc-item{margin-bottom:8px;padding:8px 10px;background:var(--cream);border-radius:6px;border-left:3px solid var(--err)}
+body.dark .sc-item{background:#12121e}
+.sc-orig{color:var(--err);text-decoration:line-through;margin-bottom:3px}
+.sc-fix{color:var(--ok);font-weight:600}
+.sc-apply{float:right;font-size:11px;background:var(--ok);color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-family:var(--fd);font-weight:600}
+.sc-none{color:var(--tx3);font-style:italic}
+
+/* ================================================================
+   MOBILE RESPONSIVE
+   ================================================================ */
+/* Mobile student view: full-screen slot */
+#mobile-slot-screen{display:none;flex-direction:column;background:var(--cream)}
+#mobile-slot-screen.active{display:flex}
+
+.mob-hd{height:52px;min-height:52px;background:var(--navy);display:flex;align-items:center;padding:0 14px;gap:10px;border-bottom:2px solid var(--gold);flex-shrink:0}
+.mob-brand{font-family:var(--fs);font-size:16px;font-weight:700;color:#fff}.mob-brand b{color:var(--gold)}
+.mob-r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.mob-back{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:var(--r);padding:5px 10px;font-size:12px;cursor:pointer;font-family:var(--fd)}
+.mob-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+
+/* Sample card on mobile */
+.mob-sample{background:var(--gold3);border:2px solid var(--gold);border-radius:12px;padding:14px 16px}
+.mob-sample-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#8a6a1a;margin-bottom:8px}
+.mob-sample-text{font-size:14px;color:var(--tx);line-height:1.6}
+
+/* Answer card on mobile */
+.mob-answer{background:var(--white);border:2px solid var(--bdr);border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
+body.dark .mob-answer{background:#1e1e30;border-color:#2e2e48}
+.mob-ans-hd{background:var(--navy);padding:10px 14px;display:flex;align-items:center;gap:8px}
+.mob-ans-num{width:20px;height:20px;border-radius:50%;background:var(--gold);color:var(--navy3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.mob-ans-name{font-size:13px;font-weight:600;color:#fff;flex:1}
+.mob-ans-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.2)}
+.mob-ans-dot.typing{background:#4bde80;animation:pa 1.5s infinite}
+.mob-ans-dot.done{background:var(--gold)}
+
+.mob-ta-wrap{position:relative;padding:12px}
+.mob-ta{width:100%;border:none;outline:none;resize:none;font-family:var(--fd);font-size:15px;line-height:1.65;color:var(--tx);background:transparent;min-height:120px}
+body.dark .mob-ta{color:var(--tx)}
+.mob-ta:disabled{color:var(--tx2)}
+
+/* Diff on mobile */
+.mob-diff{padding:10px 14px;background:rgba(46,125,82,.05);border-top:1px solid var(--bdr2);font-size:13px;display:none}
+.mob-diff.on{display:block}
+
+/* Footer action buttons on mobile */
+.mob-ft{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--bdr2);background:var(--cream);flex-wrap:wrap}
+body.dark .mob-ft{background:#12121e}
+.mob-btn{flex:1;text-align:center;padding:10px 8px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:var(--fd);min-width:80px}
+.mob-btn-sub{background:var(--navy);color:#fff}
+.mob-btn-sug{background:rgba(230,126,34,.12);color:#c0600a;border:1px solid rgba(230,126,34,.25)!important}
+.mob-btn-acc{background:rgba(46,125,82,.12);color:var(--ok);border:1px solid rgba(46,125,82,.25)!important}
+.mob-btn-rej{background:rgba(184,64,64,.1);color:var(--err);border:1px solid rgba(184,64,64,.2)!important}
+
+/* Spell check on mobile textarea */
+.mob-sc-bar{display:flex;align-items:center;gap:6px;padding:6px 14px;font-size:12px;color:var(--tx3);border-top:1px solid var(--bdr2)}
+
+/* Responsive: hide desktop elements on small screens */
+@media(max-width:640px){
+  .ctoolbar,.propsbar,.timerw{display:none!important}
+  #cv-timer,#cv-media,#cv-interact,#cv-share,#cv-close,.savest{display:none!important}
+  .cvbadge,.cvtitle{font-size:12px}
+  #bg-picker{right:8px;bottom:52px}
+  /* Dashboard: hide sidebar on mobile, show full page list */
+  .dbbody{flex-direction:column}
+  .sidebar{width:100%!important;min-width:unset!important;max-height:220px;border-right:none;border-bottom:1px solid rgba(255,255,255,.06)}
+  .dbmain{flex:1}
+  /* Class grid: single column */
+  .cgrid{grid-template-columns:1fr!important}
+  /* Topbar compact */
+  .tb-sub,.tb-sep{display:none}
+  .topbar{padding:0 12px;gap:8px}
+  /* Login: full width */
+  .lw{width:100%;padding:0 12px}
+}
+@media(min-width:641px){
+  #mobile-slot-screen{display:none!important}
 }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
-body { font-family: var(--font-ui); background: var(--bg); color: var(--text); font-size: 14px; }
-
-/* ---- SCREENS ---- */
-.screen { position: fixed; inset: 0; display: none; }
-.screen.active { display: flex; }
-
-/* ============================================================
-   LOGIN SCREEN
-   ============================================================ */
-#login-screen {
-  align-items: center; justify-content: center;
-  background: var(--bg);
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(79,142,247,.08) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(247,107,79,.06) 0%, transparent 50%);
-}
-.login-card {
-  width: 380px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 40px;
-}
-.login-logo {
-  font-family: var(--font-mono);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: -1px;
-  margin-bottom: 6px;
-}
-.login-sub {
-  color: var(--text-muted);
-  font-size: 13px;
-  margin-bottom: 32px;
-}
-.form-group { margin-bottom: 16px; }
-.form-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  margin-bottom: 6px;
-}
-.form-input {
-  width: 100%;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  color: var(--text);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  outline: none;
-  transition: border-color .2s;
-}
-.form-input:focus { border-color: var(--accent); }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-  border: none; border-radius: var(--radius);
-  padding: 10px 18px;
-  font-family: var(--font-ui); font-size: 14px; font-weight: 500;
-  cursor: pointer; transition: opacity .15s, transform .1s;
-  white-space: nowrap;
-}
-.btn:active { transform: scale(.97); }
-.btn-primary { background: var(--accent); color: #fff; width: 100%; padding: 12px; }
-.btn-primary:hover { opacity: .9; }
-.btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
-.btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
-.btn-danger { background: rgba(247,107,79,.15); color: var(--accent2); border: 1px solid rgba(247,107,79,.25); }
-.btn-danger:hover { background: rgba(247,107,79,.25); }
-.btn-success { background: rgba(79,190,138,.15); color: var(--success); border: 1px solid rgba(79,190,138,.25); }
-.btn-success:hover { background: rgba(79,190,138,.25); }
-.error-msg { color: var(--accent2); font-size: 13px; margin-top: 12px; text-align: center; min-height: 20px; }
-
-/* ============================================================
-   DASHBOARD SCREEN
-   ============================================================ */
-#dashboard-screen { flex-direction: column; }
-
-.topbar {
-  height: 52px; min-height: 52px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 20px; gap: 12px;
-}
-.topbar-logo { font-family: var(--font-mono); font-weight: 700; color: var(--accent); font-size: 15px; }
-.topbar-sep { width: 1px; height: 20px; background: var(--border); }
-.topbar-title { font-weight: 500; color: var(--text); }
-.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-.user-badge {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 4px 12px 4px 8px;
-}
-.user-avatar {
-  width: 24px; height: 24px; border-radius: 50%;
-  background: var(--accent); color: #fff;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700;
-}
-.user-name { font-size: 13px; }
-.role-tag {
-  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
-  padding: 2px 6px; border-radius: 4px; text-transform: uppercase;
-}
-.role-teacher { background: rgba(247,107,79,.15); color: var(--accent2); }
-.role-student { background: rgba(79,142,247,.15); color: var(--accent); }
-
-.dash-body { flex: 1; display: flex; overflow: hidden; }
-
-/* Sidebar */
-.sidebar {
-  width: var(--sidebar-w); min-width: var(--sidebar-w);
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-.sidebar-section { padding: 16px; }
-.sidebar-label {
-  font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
-}
-.session-list { flex: 1; overflow-y: auto; padding: 8px; }
-.session-item {
-  padding: 12px 12px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  margin-bottom: 4px;
-  border: 1px solid transparent;
-  transition: background .15s, border-color .15s;
-}
-.session-item:hover { background: var(--surface2); }
-.session-item.active-session { background: rgba(79,142,247,.1); border-color: rgba(79,142,247,.3); }
-.session-item.selected { background: var(--surface2); border-color: var(--border); }
-.session-title { font-weight: 500; font-size: 13px; margin-bottom: 3px; }
-.session-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 6px; align-items: center; }
-.status-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  flex-shrink: 0;
-}
-.status-active { background: var(--success); box-shadow: 0 0 6px var(--success); animation: pulse 2s infinite; }
-.status-closed { background: var(--text-muted); }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-
-/* Main area */
-.dash-main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-.dash-content { flex: 1; overflow-y: auto; padding: 24px; }
-
-/* Teacher panel */
-.teacher-panel { margin-bottom: 24px; }
-.panel-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 16px;
-}
-.panel-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
-.form-row { display: flex; gap: 10px; }
-.form-row .form-input { flex: 1; }
-
-/* User management table */
-.user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-.user-table th {
-  font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: .5px;
-  padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left;
-}
-.user-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
-.user-table tr:last-child td { border-bottom: none; }
-.user-table tr:hover td { background: var(--surface2); }
-
-/* Empty state */
-.empty-state {
-  text-align: center; padding: 60px 20px;
-  color: var(--text-muted);
-}
-.empty-state svg { margin-bottom: 16px; opacity: .3; }
-.empty-title { font-size: 16px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
-
-/* Toast */
-.toast {
-  position: fixed; bottom: 24px; right: 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 12px 18px;
-  font-size: 13px;
-  z-index: 9999;
-  transform: translateY(80px); opacity: 0;
-  transition: all .3s cubic-bezier(.34,1.56,.64,1);
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.ok { border-left: 3px solid var(--success); }
-.toast.err { border-left: 3px solid var(--accent2); }
-
-/* ============================================================
-   CANVAS SCREEN
-   ============================================================ */
-#canvas-screen { flex-direction: column; }
-
-.canvas-topbar {
-  height: var(--toolbar-h); min-height: var(--toolbar-h);
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center;
-  padding: 0 14px; gap: 10px;
-}
-.canvas-session-name { font-weight: 600; font-size: 14px; }
-.canvas-class-tag {
-  font-family: var(--font-mono); font-size: 11px;
-  background: rgba(79,142,247,.15); color: var(--accent);
-  padding: 3px 8px; border-radius: 4px;
-}
-.canvas-topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-.auto-save-indicator { font-size: 12px; color: var(--text-muted); }
-
-/* Toolbar (left side) */
-.canvas-toolbar {
-  position: fixed; left: 10px; top: 50%;
-  transform: translateY(-50%);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 8px 6px;
-  display: flex; flex-direction: column; gap: 4px;
-  z-index: 100;
-}
-.tool-btn {
-  width: 36px; height: 36px;
-  border: none; border-radius: var(--radius);
-  background: transparent; color: var(--text-muted);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 16px; transition: all .15s; position: relative;
-}
-.tool-btn:hover { background: var(--surface2); color: var(--text); }
-.tool-btn.active { background: rgba(79,142,247,.2); color: var(--accent); }
-.tool-sep { height: 1px; background: var(--border); margin: 4px 0; }
-
-/* Properties bar (top of canvas) */
-.props-bar {
-  position: fixed; top: calc(var(--toolbar-h) + 8px); left: 50%; transform: translateX(-50%);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 6px 12px;
-  display: flex; align-items: center; gap: 10px;
-  z-index: 100;
-}
-.props-bar label { font-size: 12px; color: var(--text-muted); }
-.color-swatch {
-  width: 22px; height: 22px; border-radius: 50%;
-  border: 2px solid var(--border);
-  cursor: pointer; outline: none;
-  appearance: none; -webkit-appearance: none;
-  padding: 0; overflow: hidden;
-}
-.color-swatch::-webkit-color-swatch-wrapper { padding: 0; }
-.color-swatch::-webkit-color-swatch { border: none; border-radius: 50%; }
-.size-slider { width: 80px; accent-color: var(--accent); }
-.opacity-input {
-  width: 50px; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 4px; color: var(--text); padding: 3px 6px; font-size: 12px;
-  text-align: center;
-}
-
-/* Canvas wrapper */
-.canvas-area { flex: 1; position: relative; overflow: hidden; }
-#main-canvas { display: block; cursor: crosshair; }
-
-/* Timer widget */
-.timer-widget {
-  position: fixed; right: 14px; top: calc(var(--toolbar-h) + 12px);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 18px;
-  z-index: 100;
-  min-width: 160px;
-  text-align: center;
-  display: none;
-}
-.timer-widget.visible { display: block; }
-.timer-display {
-  font-family: var(--font-mono); font-size: 32px; font-weight: 700;
-  color: var(--text); letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-.timer-display.warning { color: var(--accent2); }
-.timer-btns { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
-.timer-presets { display: flex; gap: 5px; justify-content: center; }
-.preset-btn {
-  font-family: var(--font-mono); font-size: 11px;
-  background: var(--surface2); border: 1px solid var(--border);
-  color: var(--text-muted); border-radius: 4px;
-  padding: 3px 8px; cursor: pointer;
-}
-.preset-btn:hover { color: var(--text); border-color: var(--accent); }
-
-/* Mindmap node */
-.mindmap-node {
-  position: absolute;
-  background: var(--surface2);
-  border: 2px solid var(--accent);
-  border-radius: 8px;
-  padding: 8px 14px;
-  min-width: 80px;
-  text-align: center;
-  cursor: move;
-  user-select: none;
-  font-size: 13px;
-  z-index: 50;
-}
-.mindmap-node.selected { border-color: var(--accent2); box-shadow: 0 0 0 2px rgba(247,107,79,.3); }
-.mindmap-node:focus { outline: none; }
-
-/* PDF overlay */
-.pdf-overlay {
-  display: none;
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.7);
-  backdrop-filter: blur(4px);
-  z-index: 200;
-  align-items: center; justify-content: center;
-}
-.pdf-overlay.open { display: flex; }
-.pdf-modal {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px;
-  width: 420px;
-}
-.pdf-modal h3 { margin-bottom: 16px; font-size: 16px; }
-.drop-zone {
-  border: 2px dashed var(--border);
-  border-radius: var(--radius);
-  padding: 36px;
-  text-align: center;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: border-color .2s, background .2s;
-}
-.drop-zone:hover, .drop-zone.drag-over {
-  border-color: var(--accent);
-  background: rgba(79,142,247,.05);
-}
-.drop-zone-icon { font-size: 32px; margin-bottom: 8px; }
-.modal-btns { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
-
-/* Text input overlay */
-#text-input-overlay {
-  display: none;
-  position: fixed; z-index: 200;
-}
-#text-input-field {
-  background: var(--surface);
-  border: 2px solid var(--accent);
-  color: var(--text);
-  padding: 6px 10px;
-  font-family: var(--font-ui);
-  font-size: 16px;
-  border-radius: var(--radius);
-  outline: none;
-  min-width: 120px;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<!-- ============================================================
-     LOGIN SCREEN
-     ============================================================ -->
+<!-- LOGIN -->
 <div id="login-screen" class="screen active">
-  <div class="login-card">
-    <div class="login-logo">ClassBoard</div>
-    <div class="login-sub">Bảng tương tác lớp học · DNU</div>
-    <div class="form-group">
-      <label class="form-label">Email</label>
-      <input class="form-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="email">
+  <div class="lw">
+    <div class="lhd">
+      <div class="llogo">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M5 7h22M5 13h14M5 19h18M5 25h10" stroke="#1a2e4a" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="25" cy="24" r="5.5" fill="#1a2e4a"/>
+          <path d="M23 24l1.5 1.5 3-3" stroke="#c9a84c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="lbrand">Venus <b>ClassBoard</b></div>
+      <div class="ltag">Interactive Whiteboard · Venus English</div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Mật khẩu</label>
-      <input class="form-input" id="login-pass" type="password" placeholder="••••••••">
+    <div class="lcard">
+      <div class="ltabs">
+        <div class="ltab on" data-tab="login">&#128273; Đăng nhập</div>
+        <div class="ltab" data-tab="reg">&#128221; Đăng ký</div>
+      </div>
+      <div id="pane-login" class="lpane on">
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="sv-email" type="email" placeholder="email@example.com" autocomplete="email"></div>
+        <div class="fg"><label class="fl">Mật khẩu</label><input class="fi" id="sv-pass" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;"></div>
+        <button class="btn btn-navy btn-full" id="sv-login-btn">Đăng nhập &#8594;</button>
+        <div class="ferr" id="login-err"></div>
+        <span class="tlink" id="tlink">Giáo viên? Bấm vào đây</span>
+      </div>
+      <div id="pane-reg" class="lpane">
+        <div class="fg"><label class="fl">Họ tên</label><input class="fi" id="reg-name" placeholder="Nguyễn Văn A"></div>
+        <div class="fg"><label class="fl">Email</label><input class="fi" id="reg-email" type="email" placeholder="email@example.com"></div>
+        <div class="frow">
+          <div class="fg"><label class="fl">Mật khẩu</label><input class="fi" id="reg-pass" type="password" placeholder="Tối thiểu 6 ký tự"></div>
+          <div class="fg"><label class="fl">Mã lớp</label><input class="fi" id="reg-code" placeholder="VD: ABC12" style="font-family:var(--fm);letter-spacing:2px;text-transform:uppercase"></div>
+        </div>
+        <button class="btn btn-gold btn-full" id="reg-btn">Tạo tài khoản &#8594;</button>
+        <div class="ferr" id="reg-err"></div>
+      </div>
     </div>
-    <button class="btn btn-primary" id="login-btn">Đăng nhập</button>
-    <div class="error-msg" id="login-error"></div>
   </div>
 </div>
 
-<!-- ============================================================
-     DASHBOARD SCREEN
-     ============================================================ -->
+<!-- Teacher modal -->
+<div class="moverlay" id="tmodal">
+  <div class="modal" style="width:340px">
+    <div class="modal-h">&#128272; Đăng nhập giáo viên</div>
+    <div class="fg"><label class="fl">Mật khẩu</label><input class="fi" id="tpass" type="password" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" style="font-size:18px;letter-spacing:4px;text-align:center"></div>
+    <div class="ferr" id="terr"></div>
+    <div class="modal-ft"><button class="btn btn-ghost" id="tcancel">Hủy</button><button class="btn btn-navy" id="tlogin">Vào &#8594;</button></div>
+  </div>
+</div>
+
+<!-- CLASS PICKER -->
+<div id="class-screen" class="screen">
+  <div class="topbar">
+    <div class="tb-brand">Venus <b>ClassBoard</b></div>
+    <div class="tb-sep"></div><div class="tb-sub">Chọn lớp để bắt đầu</div>
+    <div class="tb-r">
+      <div class="uchip"><div class="uav">G</div><span class="unm">Giáo viên</span><span class="ubadge teacher">GV</span></div>
+      <button id="dark-toggle-cs" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:var(--r);padding:5px 10px;font-size:14px;cursor:pointer" title="Dark/Light">🌙</button>
+      <button class="btn-lo" id="cs-lo">Đăng xuất</button>
+    </div>
+  </div>
+  <div class="cb">
+    <div class="ch">Lớp học của bạn</div>
+    <div class="cs">Chọn lớp để quản lý và tạo trang bảng</div>
+    <div class="cgrid" id="cgrid"><div style="color:var(--tx3);font-size:13px;padding:20px">Đang tải...</div></div>
+    <button class="cadd" id="cadd-btn">&#65291; Tạo lớp mới</button>
+  </div>
+</div>
+
+<!-- Create class modal -->
+<div class="moverlay" id="ccmodal">
+  <div class="modal" style="width:340px">
+    <div class="modal-h">&#10133; Tạo lớp mới</div>
+    <div class="fg"><label class="fl">Tên lớp</label><input class="fi" id="ccnm" placeholder="VD: IELTS Academic A1"></div>
+    <div class="ferr" id="ccerr"></div>
+    <div class="modal-ft"><button class="btn btn-ghost" id="cc-cancel">Hủy</button><button class="btn btn-navy" id="cc-ok">Tạo lớp &#8594;</button></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
 <div id="dashboard-screen" class="screen">
   <div class="topbar">
-    <span class="topbar-logo">ClassBoard</span>
-    <div class="topbar-sep"></div>
-    <span class="topbar-title">DNU Interactive Whiteboard</span>
-    <div class="topbar-right">
-      <div class="user-badge">
-        <div class="user-avatar" id="dash-avatar">?</div>
-        <span class="user-name" id="dash-name">—</span>
-        <span class="role-tag" id="dash-role-tag">—</span>
-      </div>
-      <button class="btn btn-ghost" id="logout-btn">Đăng xuất</button>
+    <button class="cvback" id="db-back">&#8592; Lớp học</button>
+    <div class="tb-sep"></div>
+    <div class="tb-brand">Venus <b>ClassBoard</b></div>
+    <div class="tb-r">
+      <div class="uchip"><div class="uav" id="dbav">?</div><span class="unm" id="dbnm">—</span><span class="ubadge" id="dbbadge">—</span></div>
+      <button class="btn-lo" id="db-lo">Đăng xuất</button>
     </div>
   </div>
-  <div class="dash-body">
-    <!-- Sidebar: session history -->
+  <div class="dbbody">
     <div class="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Buổi học</div>
+      <div class="sbhd">
+        <div class="sbcnm" id="sbcnm">—</div>
+        <div class="sbcode" id="sbcode">—</div>
       </div>
-      <div class="session-list" id="session-list">
-        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Đang tải...</div>
-      </div>
+      <div class="sbtitle">Các trang</div>
+      <div class="pglist" id="pglist"><div style="padding:16px;color:rgba(255,255,255,.3);font-size:13px">Đang tải...</div></div>
     </div>
-    <!-- Main -->
-    <div class="dash-main">
-      <div class="dash-content" id="dash-content">
-        <!-- Teacher content injected here -->
-      </div>
-    </div>
+    <div class="dbmain"><div class="dbcon" id="dbcon"></div></div>
   </div>
 </div>
 
-<!-- ============================================================
-     CANVAS SCREEN
-     ============================================================ -->
+<!-- CANVAS -->
 <div id="canvas-screen" class="screen">
-  <div class="canvas-topbar">
-    <button class="btn btn-ghost" id="back-to-dash" style="padding:6px 12px;font-size:13px">← Dashboard</button>
-    <div class="canvas-class-tag" id="canvas-class-tag">—</div>
-    <span class="canvas-session-name" id="canvas-session-name">—</span>
-    <div class="canvas-topbar-right">
-      <span class="auto-save-indicator" id="save-indicator">●  Đã lưu</span>
-      <button class="btn btn-ghost" id="toggle-timer-btn" style="font-size:13px;padding:6px 12px">⏱ Timer</button>
-      <button class="btn btn-ghost" id="open-pdf-btn" style="font-size:13px;padding:6px 12px">📄 PDF/Ảnh</button>
-      <button class="btn btn-danger" id="close-session-btn" style="font-size:13px;padding:6px 12px;display:none">■ Kết thúc</button>
+  <div class="cvtb">
+    <button class="cvback" id="cvback">&#8592; Dashboard</button>
+    <div class="cvbadge" id="cvbadge">—</div>
+    <div class="cvtitle" id="cvtitle">—</div>
+    <div class="cvtbr">
+      <button id="dark-toggle" title="Dark/Light mode">🌙</button>
+      <button class="ctb" id="cv-bg" title="Canvas background">◫ BG</button>
+      <span class="savest clean" id="savest">&#10003; Đã lưu</span>
+      <button class="ctb" id="cv-timer">&#9202; Timer</button>
+      <button class="ctb" id="cv-media">&#128444; Media</button>
+      <button class="ctb g" id="cv-interact" style="display:none">&#8862; Allow Interact</button>
+      <button class="ctb au" id="cv-share">&#8599; Chia sẻ</button>
+      <button class="ctb rd" id="cv-close" style="display:none">&#9632; Kết thúc</button>
+      <button class="ctb" id="cv-settings" style="display:none" title="Settings">&#9881;</button>
     </div>
   </div>
-
-  <!-- Left toolbar -->
-  <div class="canvas-toolbar">
-    <button class="tool-btn active" data-tool="select" title="Select (V)">⊹</button>
-    <button class="tool-btn" data-tool="pan" title="Pan (H)">✋</button>
-    <div class="tool-sep"></div>
-    <button class="tool-btn" data-tool="pen" title="Bút vẽ (P)">✏️</button>
-    <button class="tool-btn" data-tool="line" title="Đường thẳng (L)">╱</button>
-    <button class="tool-btn" data-tool="rect" title="Hình chữ nhật (R)">▭</button>
-    <button class="tool-btn" data-tool="circle" title="Hình tròn (C)">○</button>
-    <button class="tool-btn" data-tool="arrow" title="Mũi tên (A)">→</button>
-    <div class="tool-sep"></div>
-    <button class="tool-btn" data-tool="text" title="Văn bản (T)">T</button>
-    <button class="tool-btn" data-tool="mindmap" title="Mindmap node (M)">◈</button>
-    <div class="tool-sep"></div>
-    <button class="tool-btn" data-tool="eraser" title="Tẩy (E)">⌫</button>
-    <div class="tool-sep"></div>
-    <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)">↩</button>
-    <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y)">↪</button>
-    <div class="tool-sep"></div>
-    <button class="tool-btn" id="clear-btn" title="Xóa tất cả" style="color:var(--accent2)">🗑</button>
+  <div class="ctoolbar" id="ctoolbar">
+    <button class="tbtn on" data-tool="select" title="V"><svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 1.5l11 6-5.5 1-2 5.5L2 1.5z" fill="currentColor"/></svg></button>
+    <button class="tbtn" data-tool="pan" title="H">&#9995;</button>
+    <div class="tsep"></div>
+    <button class="tbtn" data-tool="pen"    title="P">&#9999;&#65039;</button>
+    <button class="tbtn" data-tool="line"   title="L">&#9585;</button>
+    <button class="tbtn" data-tool="rect"   title="R">&#9645;</button>
+    <button class="tbtn" data-tool="circle" title="C">&#9675;</button>
+    <button class="tbtn" data-tool="arrow"  title="A">&#8594;</button>
+    <div class="tsep"></div>
+    <button class="tbtn" data-tool="text"    title="T">T</button>
+    <button class="tbtn" data-tool="mindmap" title="M">&#9672;</button>
+    <div class="tsep"></div>
+    <button class="tbtn" data-tool="eraser" title="E">&#9003;</button>
+    <div class="tsep"></div>
+    <button class="tbtn" id="undo-btn" title="Ctrl+Z">&#8617;</button>
+    <button class="tbtn" id="redo-btn" title="Ctrl+Y">&#8618;</button>
+    <div class="tsep"></div>
+    <button class="tbtn" id="clear-btn" style="color:var(--err)">&#128465;</button>
   </div>
-
-  <!-- Props bar -->
-  <div class="props-bar" id="props-bar">
-    <label>Màu</label>
-    <input type="color" class="color-swatch" id="stroke-color" value="#4f8ef7">
-    <label>Nền</label>
-    <input type="color" class="color-swatch" id="fill-color" value="#00000000">
-    <label>Cỡ</label>
-    <input type="range" class="size-slider" id="stroke-size" min="1" max="40" value="3">
-    <span id="size-label" style="font-family:var(--font-mono);font-size:12px;width:20px">3</span>
+  <div class="propsbar">
+    <span class="plbl">Màu</span><input type="color" class="csw" id="s-col" value="#1a2e4a">
+    <span class="plbl">Nền</span><input type="color" class="csw" id="f-col" value="#c9a84c">
+    <span class="plbl">Cỡ</span><input type="range" class="szsl" id="sz-sl" min="1" max="40" value="3">
+    <span class="szval" id="szval">3</span>
   </div>
-
-  <!-- Canvas area -->
-  <div class="canvas-area" id="canvas-area">
-    <canvas id="main-canvas"></canvas>
-  </div>
-
-  <!-- Timer widget -->
-  <div class="timer-widget" id="timer-widget">
-    <div class="timer-display" id="timer-display">05:00</div>
-    <div class="timer-btns">
-      <button class="btn btn-ghost" id="timer-start" style="font-size:12px;padding:5px 10px">▶</button>
-      <button class="btn btn-ghost" id="timer-pause" style="font-size:12px;padding:5px 10px">⏸</button>
-      <button class="btn btn-ghost" id="timer-reset" style="font-size:12px;padding:5px 10px">↺</button>
-    </div>
-    <div class="timer-presets">
-      <button class="preset-btn" data-mins="3">3m</button>
-      <button class="preset-btn" data-mins="5">5m</button>
-      <button class="preset-btn" data-mins="10">10m</button>
-      <button class="preset-btn" data-mins="15">15m</button>
-    </div>
-  </div>
-
-  <!-- PDF/Image upload modal -->
-  <div class="pdf-overlay" id="pdf-overlay">
-    <div class="pdf-modal">
-      <h3>📎 Thêm ảnh / PDF vào canvas</h3>
-      <div class="drop-zone" id="drop-zone">
-        <div class="drop-zone-icon">🖼</div>
-        <div>Kéo thả file hoặc <strong>click để chọn</strong></div>
-        <div style="font-size:12px;margin-top:6px;color:var(--text-muted)">PNG, JPG, GIF, PDF</div>
-        <input type="file" id="file-input" accept="image/*,.pdf" style="display:none">
-      </div>
-      <div class="modal-btns">
-        <button class="btn btn-ghost" id="close-pdf-modal">Hủy</button>
+  <div class="cvarea" id="cvarea">
+    <canvas id="cv"></canvas>
+    <div id="iblayer">
+      <div class="sampbox" id="sampbox">
+        <div class="samphd" id="sampdrag"><span class="samplbl">&#10022; Sample Answer</span><button class="sab sab-rj" id="hidesamp">&#10005;</button></div>
+        <textarea class="sampta" id="sampta" placeholder="Nhập đáp án mẫu…"></textarea>
+        <div class="sampft" id="sampft"></div>
       </div>
     </div>
   </div>
+  <div class="timerw" id="timerw">
+    <div class="tdisp" id="tdisp">05:00</div>
+    <div class="tctrl">
+      <button class="btn btn-ghost btn-sm" id="t-start">&#9654;</button>
+      <button class="btn btn-ghost btn-sm" id="t-pause">&#9208;</button>
+      <button class="btn btn-ghost btn-sm" id="t-reset">&#8635;</button>
+    </div>
+    <div class="tpres">
+      <button class="tpre" data-m="1">1m</button><button class="tpre" data-m="3">3m</button>
+      <button class="tpre" data-m="5">5m</button><button class="tpre" data-m="10">10m</button>
+      <button class="tpre" data-m="15">15m</button>
+    </div>
+  </div>
+  <div id="txov"><input id="txf" type="text" placeholder="Nhập văn bản…"></div>
+</div>
 
-  <!-- Text input overlay -->
-  <div id="text-input-overlay">
-    <input type="text" id="text-input-field" placeholder="Nhập văn bản...">
+<!-- BG Picker -->
+<div id="bg-picker">
+  <div class="bplbl">Canvas Background</div>
+  <div class="bg-opts">
+    <div class="bgopt bgopt-white sel" data-bg="white" title="Trắng"></div>
+    <div class="bgopt bgopt-cream" data-bg="cream" title="Kem"></div>
+    <div class="bgopt bgopt-grid" data-bg="grid" title="Caro"></div>
+    <div class="bgopt bgopt-dot" data-bg="dot" title="Chấm bi"></div>
+    <div class="bgopt bgopt-yellow" data-bg="yellow" title="Vàng nhạt"></div>
+    <div class="bgopt bgopt-dark" data-bg="dark" title="Tối"></div>
   </div>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<!-- Mobile slot screen (student on phone) -->
+<div id="mobile-slot-screen" class="screen">
+  <div class="mob-hd">
+    <div class="mob-brand">Venus <b>ClassBoard</b></div>
+    <div class="mob-r">
+      <button id="dark-toggle-mob" style="background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:4px;padding:4px 8px;font-size:13px;cursor:pointer">🌙</button>
+      <button class="mob-back" id="mob-back">← Thoát</button>
+    </div>
+  </div>
+  <div class="mob-body" id="mob-body">
+    <div style="text-align:center;color:var(--tx3);padding:40px 20px;font-size:14px">Đang tải...</div>
+  </div>
+</div>
 
-<!-- ============================================================
-     JAVASCRIPT
-     ============================================================ -->
+<!-- API Key Settings Modal (teacher only) -->
+<div class="moverlay" id="apikey-modal">
+  <div class="modal" style="width:380px">
+    <div class="modal-h">&#128273; Claude API Key</div>
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:16px;line-height:1.5">
+      Nhập API key để bật <strong>Grammar Check</strong> khi soạn nội dung.<br>
+      Key lưu trong trình duyệt, không gửi lên server.
+    </p>
+    <div class="fg">
+      <label class="fl">API Key</label>
+      <input class="fi" id="apikey-input" type="password" placeholder="sk-ant-...">
+    </div>
+    <div id="apikey-status" style="font-size:12px;color:var(--tx3);margin-top:-6px;margin-bottom:10px"></div>
+    <div class="modal-ft">
+      <button class="btn btn-err btn-sm" id="apikey-clear">Xóa key</button>
+      <button class="btn btn-ghost" id="apikey-cancel">Hủy</button>
+      <button class="btn btn-navy" id="apikey-save">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Interact controls -->
+<div id="ibctrl">
+  <span class="iclbl">&#8862; Interact Mode</span><div class="icsep"></div>
+  <span class="iclbl" id="ibcnt">0/0 đã nộp</span><div class="icsep"></div>
+  <button class="icbtn icbtn-s" id="ibsamp">&#10022; Sample</button>
+  <button class="icbtn icbtn-x" id="ibstop">&#9632; Dừng</button>
+</div>
+
+<!-- Suggest modal -->
+<div id="sugov">
+  <div class="sugm">
+    <h3 id="sugtitle">&#9998;&#65039; Đề xuất chỉnh sửa</h3>
+    <div class="sugsub" id="sugsub"></div>
+    <div class="fl" style="margin-bottom:5px">Nội dung hiện tại</div>
+    <div class="sugorig" id="sugorig"></div>
+    <div class="fl" style="margin-bottom:5px;margin-top:10px">Nội dung đề xuất</div>
+    <textarea class="sugnew" id="sugnew" rows="4"></textarea>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" id="sug-cancel">Hủy</button>
+      <button class="btn btn-ok" id="sug-ok">Gửi đề xuất</button>
+    </div>
+  </div>
+</div>
+
+<!-- Media modal -->
+<div class="moverlay" id="mediamodal">
+  <div class="modal">
+    <div class="modal-h">&#128444; Thêm ảnh lên canvas</div>
+    <div class="dropz" id="dropz">
+      <div style="font-size:28px;margin-bottom:8px">&#128206;</div>
+      <div>Kéo thả hoặc <strong>click để chọn</strong></div>
+      <div style="font-size:12px;margin-top:5px">PNG · JPG · GIF</div>
+      <input type="file" id="filein" accept="image/*" style="display:none">
+    </div>
+    <div class="modal-ft"><button class="btn btn-ghost" id="closemedia">Hủy</button></div>
+  </div>
+</div>
+
+<!-- Share modal -->
+<div class="moverlay" id="sharemodal">
+  <div class="modal">
+    <div class="modal-h">&#8599; Chia sẻ buổi học</div>
+    <div class="fg"><label class="fl">Tiêu đề email</label><input class="fi" id="shsubj"></div>
+    <div class="fg"><label class="fl">Tóm tắt canvas</label><div class="shsumm" id="shsumm"></div></div>
+    <div class="fg"><label class="fl">Ghi chú thêm</label><textarea class="fi" id="shnote" rows="3" style="resize:vertical" placeholder="Bài tập về nhà…"></textarea></div>
+    <div class="shprog" id="shprog"></div>
+    <div class="modal-ft">
+      <button class="btn btn-ghost" id="closeshare">Hủy</button>
+      <button class="btn btn-ghost" id="copysh">&#128203; Copy</button>
+      <button class="btn btn-gold"  id="doshare">&#128228; Gửi Gmail</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add student modal -->
+<div class="moverlay" id="asvmodal">
+  <div class="modal">
+    <div class="modal-h">&#10133; Thêm sinh viên vào lớp</div>
+    <div class="frow">
+      <div class="fg"><label class="fl">Họ tên</label><input class="fi" id="asvnm"></div>
+      <div class="fg"><label class="fl">Email</label><input class="fi" id="asvemail" type="email"></div>
+    </div>
+    <div class="fg"><label class="fl">Mật khẩu</label><input class="fi" id="asvpass" type="password" placeholder="Mặc định: 123456"></div>
+    <div class="ferr" id="asverr"></div>
+    <div class="modal-ft"><button class="btn btn-ghost" id="asvcancel">Hủy</button><button class="btn btn-navy" id="asvok">Thêm vào lớp</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────
-const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE'; // <-- thay bằng URL deploy GAS
 
-// ─── STATE ────────────────────────────────────────────────────
-let currentUser = null;
-let sessions = [];
-let selectedSession = null;
-let autoSaveTimer = null;
-let unsaved = false;
+const GAS='https://script.google.com/macros/s/AKfycbxXT74lKkMhRakOmQJ91tVU8C0t0Ca3M-kZufRcajDvCyS0QTQVsymA16keLo4nG8wg/exec';
+let me=null,classes=[],activeClass=null,pages=[],activePage=null,dirty=false,autoSI=null;
+const $=id=>document.getElementById(id);const qq=s=>document.querySelectorAll(s);
+const showScreen=id=>{qq('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');};
+const toast=(m,t='ok')=>{const e=$('toast');e.textContent=m;e.className='toast show '+t;setTimeout(()=>e.classList.remove('show'),3000);};
+const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+async function api(method,params){try{if(method==='GET'){const r=await fetch(GAS+'?'+new URLSearchParams(params));return r.json();}const r=await fetch(GAS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)});return r.json();}catch(e){return{ok:false,error:'Lỗi kết nối: '+e.message};}}
 
-// Canvas state
-const canvas = document.getElementById('main-canvas');
-const ctx = canvas.getContext('2d');
-let tool = 'select';
-let isDrawing = false;
-let isPanning = false;
-let startX, startY, lastX, lastY;
-let panOffsetX = 0, panOffsetY = 0;
-let panStartX, panStartY;
-let strokeColor = '#4f8ef7';
-let fillColor = null; // null = transparent
-let strokeSize = 3;
-let history = []; // undo/redo stacks
-let redoStack = [];
-let objects = []; // all drawn objects
-let selectedObject = null;
-let mindmapNodes = []; // DOM nodes
+// ── LOGIN ──────────────────────────────────────────────────────
+qq('.ltab').forEach(t=>t.addEventListener('click',()=>{qq('.ltab').forEach(x=>x.classList.remove('on'));qq('.lpane').forEach(x=>x.classList.remove('on'));t.classList.add('on');$('pane-'+t.dataset.tab).classList.add('on');}));
+$('sv-login-btn').addEventListener('click',doSvLogin);
+$('sv-pass').addEventListener('keydown',e=>e.key==='Enter'&&doSvLogin());
+async function doSvLogin(){const email=$('sv-email').value.trim(),pass=$('sv-pass').value;$('login-err').textContent='';if(!email||!pass){$('login-err').textContent='Vui lòng điền đầy đủ';return;}$('sv-login-btn').textContent='...';$('sv-login-btn').disabled=true;const res=await api('GET',{action:'loginStudent',email,password:pass});$('sv-login-btn').textContent='Đăng nhập →';$('sv-login-btn').disabled=false;if(res.ok){me=res.user;saveMe();initSv();}else $('login-err').textContent=res.error;}
+$('reg-btn').addEventListener('click',doReg);
+async function doReg(){const name=$('reg-name').value.trim(),email=$('reg-email').value.trim(),pass=$('reg-pass').value,code=$('reg-code').value.trim().toUpperCase();$('reg-err').textContent='';if(!name||!email||!pass){$('reg-err').textContent='Điền đủ thông tin';return;}const cr=await api('GET',{action:'getClasses',token:'student'});const cls=cr.ok?(cr.classes||[]).find(c=>c.code===code):null;if(!cls){$('reg-err').textContent='Mã lớp không hợp lệ';return;}const res=await api('POST',{action:'register',name,email,password:pass,classId:cls.id});if(res.ok){toast('✅ Đăng ký thành công!');qq('.ltab')[0].click();$('sv-email').value=email;}else $('reg-err').textContent=res.error;}
+$('tlink').addEventListener('click',()=>$('tmodal').classList.add('open'));
+$('tcancel').addEventListener('click',()=>{$('tmodal').classList.remove('open');$('terr').textContent='';});
+$('tlogin').addEventListener('click',doTLogin);
+$('tpass').addEventListener('keydown',e=>e.key==='Enter'&&doTLogin());
+async function doTLogin(){const pass=$('tpass').value;$('terr').textContent='';const res=await api('GET',{action:'loginTeacher',password:pass});if(res.ok){me=res.user;$('tmodal').classList.remove('open');$('tpass').value='';saveMe();initTeacher();}else $('terr').textContent=res.error;}
+const saveMe=()=>localStorage.setItem('vcb_me',JSON.stringify(me));
+const logoutAll=()=>{me=null;localStorage.removeItem('vcb_me');IB.deactivate();clearInterval(autoSI);showScreen('login-screen');};
+$('cs-lo').addEventListener('click',logoutAll);$('db-lo').addEventListener('click',logoutAll);
+const sm=localStorage.getItem('vcb_me');if(sm){try{me=JSON.parse(sm);me.role==='teacher'?initTeacher():initSv();}catch(_){}}
 
-// Timer
-let timerSeconds = 300;
-let timerRunning = false;
-let timerInterval = null;
+// ── CLASS PICKER ───────────────────────────────────────────────
+async function initTeacher(){showScreen('class-screen');const res=await api('GET',{action:'getClasses',token:'teacher'});classes=res.ok?res.classes:[];renderCGrid();}
+function renderCGrid(){const g=$('cgrid');if(!classes.length){g.innerHTML='<div style="color:var(--tx3);font-size:13px;padding:20px 0">Chưa có lớp nào. Bấm nút bên dưới để tạo.</div>';return;}g.innerHTML=classes.map(c=>`<div class="ccard" data-cid="${c.id}"><div class="ccnm">${esc(c.name)}</div><div class="ccmeta"><span class="cccode">${c.code}</span><span>👥 ${c.studentCount} SV</span><span>· ${c.createdAt}</span></div><button class="ccdel" data-del="${c.id}">✕</button></div>`).join('');g.querySelectorAll('.ccard').forEach(card=>card.addEventListener('click',e=>{if(e.target.classList.contains('ccdel'))return;openClass(card.dataset.cid);}));g.querySelectorAll('.ccdel').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();delClass(btn.dataset.del);}));}
+$('cadd-btn').addEventListener('click',()=>{$('ccnm').value='';$('ccerr').textContent='';$('ccmodal').classList.add('open');});
+$('cc-cancel').addEventListener('click',()=>$('ccmodal').classList.remove('open'));
+$('cc-ok').addEventListener('click',async()=>{const nm=$('ccnm').value.trim();if(!nm){$('ccerr').textContent='Nhập tên lớp';return;}const res=await api('POST',{action:'createClass',token:'teacher',name:nm});if(res.ok){classes.unshift(res.class);renderCGrid();$('ccmodal').classList.remove('open');toast('✅ Đã tạo lớp '+nm);}else $('ccerr').textContent=res.error;});
+$('ccnm').addEventListener('keydown',e=>e.key==='Enter'&&$('cc-ok').click());
+async function delClass(id){if(!confirm('Xóa lớp này?'))return;const res=await api('POST',{action:'deleteClass',token:'teacher',classId:id});if(res.ok){classes=classes.filter(c=>c.id!==id);renderCGrid();toast('Đã xóa');}}
 
-// ─── HELPERS ──────────────────────────────────────────────────
-function $(id) { return document.getElementById(id); }
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  $(id).classList.add('active');
+// ── OPEN CLASS → DASHBOARD ─────────────────────────────────────
+async function openClass(id){activeClass=classes.find(c=>c.id===id);if(!activeClass)return;showScreen('dashboard-screen');setDbHdr();renderDbCon();await loadPages();}
+function setDbHdr(){const init=(me.name||'G')[0].toUpperCase();$('dbav').textContent=init;$('dbnm').textContent=me.name||'Giáo viên';$('dbbadge').textContent=me.role==='teacher'?'GV':'SV';$('dbbadge').className='ubadge '+me.role;$('sbcnm').textContent=activeClass.name;$('sbcode').textContent='Code: '+activeClass.code;}
+$('db-back').addEventListener('click',()=>{if(me.role==='teacher')initTeacher();else logoutAll();});
+async function loadPages(){const res=await api('GET',{action:'getPages',token:me.email||'teacher',classId:activeClass.id});pages=res.ok?res.pages:[];renderPgList();}
+function renderPgList(){const list=$('pglist');if(!pages.length){list.innerHTML='<div style="padding:16px 12px;color:rgba(255,255,255,.3);font-size:13px">Chưa có trang nào</div>';return;}list.innerHTML=pages.map(p=>`<div class="pgitem ${p.status==='active'?'isa':''}" data-pid="${p.id}"><div class="pititle">${esc(p.title)}</div><div class="pimeta"><span class="pidot ${p.status}"></span><span>${p.status==='active'?'Đang học':'Đã kết thúc'}</span><span>·</span><span style="font-size:10px">${p.date}</span></div></div>`).join('');list.querySelectorAll('.pgitem').forEach(el=>el.addEventListener('click',()=>openPage(el.dataset.pid)));}
+function renderDbCon(){const c=$('dbcon');if(me.role==='teacher'){c.innerHTML=`<div class="panel"><div class="phd"><div class="ptitle">&#10133; Tạo trang mới</div></div><div class="frow" style="align-items:flex-end"><div class="fg" style="flex:2;margin-bottom:0"><label class="fl">Tiêu đề</label><input class="fi" id="new-pg" placeholder="VD: Unit 3 – Reading · Task 1"></div><button class="btn btn-navy" id="create-pg" style="padding:9px 18px;flex-shrink:0">Tạo &#8594;</button></div></div><div class="panel"><div class="phd"><div class="ptitle">&#128101; Sinh viên trong lớp</div><button class="btn btn-ok btn-sm" id="open-asv">+ Thêm</button></div><div id="svwrap">Đang tải...</div></div>`;$('create-pg').addEventListener('click',createPage);$('new-pg').addEventListener('keydown',e=>e.key==='Enter'&&createPage());$('open-asv').addEventListener('click',()=>{$('asvnm').value='';$('asvemail').value='';$('asvpass').value='';$('asverr').textContent='';$('asvmodal').classList.add('open');});loadSvTable();}else{c.innerHTML=`<div class="svwel"><h2>Xin chào, ${esc(me.name)} &#128075;</h2><p>Lớp: <strong>${esc(activeClass.name)}</strong></p><div class="tipbox">&#128161; Chọn trang từ danh sách bên trái để vào bảng. Trang đang học có chấm xanh.</div></div>`;}}
+async function createPage(){const title=$('new-pg').value.trim();if(!title){toast('Nhập tiêu đề','err');return;}const res=await api('POST',{action:'createPage',token:'teacher',classId:activeClass.id,title});if(res.ok){toast('✅ Đã tạo trang');$('new-pg').value='';pages.unshift(res.page);renderPgList();openPage(res.page.id);}else toast(res.error||'Lỗi','err');}
+async function loadSvTable(){const res=await api('GET',{action:'getStudentsInClass',token:'teacher',classId:activeClass.id});const w=$('svwrap');if(!res.ok||!res.students.length){w.innerHTML='<div style="color:var(--tx3);font-size:13px">Chưa có sinh viên nào.</div>';return;}w.innerHTML=`<table class="dtable"><thead><tr><th>Họ tên</th><th>Email</th><th></th></tr></thead><tbody>${res.students.map(s=>`<tr><td>${esc(s.name)}</td><td>${esc(s.email)}</td><td><button class="btn btn-err btn-sm" data-rem="${esc(s.email)}">Xóa</button></td></tr>`).join('')}</tbody></table>`;w.querySelectorAll('[data-rem]').forEach(btn=>btn.addEventListener('click',()=>removeSv(btn.dataset.rem)));}
+$('asvcancel').addEventListener('click',()=>$('asvmodal').classList.remove('open'));
+$('asvok').addEventListener('click',async()=>{const nm=$('asvnm').value.trim(),email=$('asvemail').value.trim(),pass=$('asvpass').value||'123456';$('asverr').textContent='';if(!nm||!email){$('asverr').textContent='Nhập đủ họ tên và email';return;}const res=await api('POST',{action:'addStudentToClass',token:'teacher',name:nm,email,password:pass,classId:activeClass.id});if(res.ok){toast('✅ Đã thêm');$('asvmodal').classList.remove('open');loadSvTable();}else $('asverr').textContent=res.error;});
+async function removeSv(email){if(!confirm('Xóa '+email+'?'))return;const res=await api('POST',{action:'removeStudentFromClass',token:'teacher',email});if(res.ok){toast('Đã xóa');loadSvTable();}else toast(res.error,'err');}
+
+// ── STUDENT FLOW ───────────────────────────────────────────────
+async function initSv(){const res=await api('GET',{action:'getClasses',token:'student'});const all=res.ok?res.classes:[];activeClass=all.find(c=>c.id===me.classId);if(!activeClass){toast('Không tìm thấy lớp của bạn. Liên hệ GV.','err');setTimeout(logoutAll,2500);return;}showScreen('dashboard-screen');setDbHdr();renderDbCon();await loadPages();}
+
+// ── OPEN PAGE → CANVAS ─────────────────────────────────────────
+async function openPage(pid){activePage=pages.find(p=>p.id===pid);if(!activePage)return;qq('.pgitem').forEach(e=>e.classList.remove('sel'));document.querySelector(`[data-pid="${pid}"]`)?.classList.add('sel');const res=await api('GET',{action:'getCanvas',pageId:pid});if(!res.ok){toast('Không tải được canvas','err');return;}$('cvbadge').textContent=activeClass.name;$('cvtitle').textContent=activePage.title;const isT=me.role==='teacher',isA=activePage.status==='active';$('cv-close').style.display=(isT&&isA)?'':'none';$('cv-interact').style.display=(isT&&isA)?'':'none';$('ctoolbar').style.opacity=isT?'1':'.4';$('ctoolbar').style.pointerEvents=isT?'':'none';document.querySelector('.propsbar').style.opacity=isT?'1':'.4';document.querySelector('.propsbar').style.pointerEvents=isT?'':'none';showScreen('canvas-screen');initCanvas(res.canvas);clearInterval(autoSI);autoSI=setInterval(()=>{if(dirty)saveCanvas();},15000);if(!isT)await IB.checkAndJoin();}
+$('cvback').addEventListener('click',async()=>{if(dirty)await saveCanvas();IB.deactivate();clearInterval(autoSI);autoSI=null;showScreen('dashboard-screen');loadPages();});
+$('cv-close').addEventListener('click',async()=>{if(!confirm('Kết thúc trang này?'))return;await saveCanvas();const res=await api('POST',{action:'closePage',token:'teacher',pageId:activePage.id});if(res.ok){toast('✅ Đã kết thúc');$('cv-close').style.display='none';$('cv-interact').style.display='none';activePage.status='closed';pages=pages.map(p=>p.id===activePage.id?{...p,status:'closed'}:p);renderPgList();}});
+
+// ── CANVAS ENGINE ──────────────────────────────────────────────
+const cv=$('cv'),ctx=cv.getContext('2d');
+let tool='select',drawing=false,panning=false,sx=0,sy=0,panSX=0,panSY=0,panX=0,panY=0;
+let strokeCol='#1a2e4a',fillCol='#c9a84c',sz=3;
+let objects=[],hist=[],redos=[],preview=null,penPts=[],mmnodes=[],txPos=null;
+function resizeCv(){const a=$('cvarea');cv.width=a.clientWidth;cv.height=a.clientHeight;}
+window.addEventListener('resize',()=>{resizeCv();redraw();});
+function initCanvas(data){resizeCv();panX=0;panY=0;mmnodes.forEach(n=>n.el.remove());mmnodes=[];objects=[];redos=[];if(data?.objects){objects=data.objects.filter(o=>o.type!=='mindmap');data.objects.filter(o=>o.type==='mindmap').forEach(o=>buildMM(o.x,o.y,o.text,o.id));}hist=[JSON.parse(JSON.stringify(objects))];redraw();}
+function redraw(){ctx.clearRect(0,0,cv.width,cv.height);ctx.save();ctx.translate(panX,panY);objects.forEach(draw);if(preview)draw(preview);ctx.restore();}
+function draw(o){ctx.save();ctx.strokeStyle=o.stroke||'#1a2e4a';ctx.fillStyle=o.fill||'transparent';ctx.lineWidth=o.size||3;ctx.lineCap='round';ctx.lineJoin='round';switch(o.type){case 'pen':if(!o.pts||o.pts.length<2)break;ctx.beginPath();ctx.moveTo(o.pts[0].x,o.pts[0].y);o.pts.slice(1).forEach(p=>ctx.lineTo(p.x,p.y));ctx.stroke();break;case 'line':ctx.beginPath();ctx.moveTo(o.x1,o.y1);ctx.lineTo(o.x2,o.y2);ctx.stroke();break;case 'rect':ctx.beginPath();ctx.rect(o.x,o.y,o.w,o.h);if(hf(o))ctx.fill();ctx.stroke();break;case 'circle':ctx.beginPath();ctx.ellipse(o.cx,o.cy,Math.abs(o.rx),Math.abs(o.ry),0,0,Math.PI*2);if(hf(o))ctx.fill();ctx.stroke();break;case 'arrow':drawArr(o);break;case 'text':ctx.fillStyle=o.stroke;ctx.font=`${(o.size||3)*5+12}px Cormorant Garamond,Georgia,serif`;ctx.fillText(o.text,o.x,o.y);break;case 'image':if(o._img)ctx.drawImage(o._img,o.x,o.y,o.w,o.h);else{const img=new Image();img.onload=()=>{o._img=img;redraw();};img.src=o.src;}break;}ctx.restore();}
+const hf=o=>{const f=o.fill||'';return f&&f!=='transparent'&&f.toLowerCase()!=='#00000000';};
+function drawArr(o){const h=(o.size||3)*4+6,a=Math.atan2(o.y2-o.y1,o.x2-o.x1);ctx.beginPath();ctx.moveTo(o.x1,o.y1);ctx.lineTo(o.x2,o.y2);ctx.stroke();ctx.beginPath();ctx.moveTo(o.x2,o.y2);ctx.lineTo(o.x2-h*Math.cos(a-Math.PI/6),o.y2-h*Math.sin(a-Math.PI/6));ctx.lineTo(o.x2-h*Math.cos(a+Math.PI/6),o.y2-h*Math.sin(a+Math.PI/6));ctx.closePath();ctx.fillStyle=o.stroke||'#1a2e4a';ctx.fill();}
+function gp(e){const r=cv.getBoundingClientRect(),cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;return{x:cx-r.left-panX,y:cy-r.top-panY};}
+cv.addEventListener('mousedown',onD,false);cv.addEventListener('mousemove',onM,false);cv.addEventListener('mouseup',onU,false);cv.addEventListener('mouseleave',onU,false);cv.addEventListener('touchstart',onD,{passive:false});cv.addEventListener('touchmove',onM,{passive:false});cv.addEventListener('touchend',onU,false);cv.addEventListener('contextmenu',e=>e.preventDefault());
+function onD(e){e.preventDefault();if(me.role!=='teacher')return;const p=gp(e);if(tool==='mindmap'){buildMM(p.x,p.y);return;}if(tool==='text'){showTx(p.x,p.y);return;}if(tool==='pan'||e.button===2){panning=true;panSX=e.clientX-panX;panSY=e.clientY-panY;cv.style.cursor='grabbing';return;}if(tool==='select')return;drawing=true;sx=p.x;sy=p.y;if(tool==='pen')penPts=[{x:p.x,y:p.y}];}
+function onM(e){e.preventDefault();const p=gp(e);if(panning){panX=e.clientX-panSX;panY=e.clientY-panSY;redraw();return;}if(!drawing)return;if(tool==='pen'){penPts.push({x:p.x,y:p.y});preview={type:'pen',pts:[...penPts],stroke:strokeCol,size:sz};redraw();return;}if(tool==='eraser'){eraseAt(p.x,p.y);return;}switch(tool){case 'line':preview={type:'line',x1:sx,y1:sy,x2:p.x,y2:p.y,stroke:strokeCol,size:sz};break;case 'rect':preview={type:'rect',x:sx,y:sy,w:p.x-sx,h:p.y-sy,stroke:strokeCol,fill:fillCol,size:sz};break;case 'circle':preview={type:'circle',cx:(sx+p.x)/2,cy:(sy+p.y)/2,rx:(p.x-sx)/2,ry:(p.y-sy)/2,stroke:strokeCol,fill:fillCol,size:sz};break;case 'arrow':preview={type:'arrow',x1:sx,y1:sy,x2:p.x,y2:p.y,stroke:strokeCol,size:sz};break;}redraw();}
+function onU(e){if(panning){panning=false;cv.style.cursor=tool==='pan'?'grab':'crosshair';return;}if(!drawing)return;drawing=false;const p=e.changedTouches?gp({clientX:e.changedTouches[0].clientX,clientY:e.changedTouches[0].clientY}):gp(e);let obj=null;switch(tool){case 'pen':if(penPts.length>1)obj={type:'pen',pts:[...penPts],stroke:strokeCol,size:sz};penPts=[];break;case 'line':obj={type:'line',x1:sx,y1:sy,x2:p.x,y2:p.y,stroke:strokeCol,size:sz};break;case 'rect':obj={type:'rect',x:sx,y:sy,w:p.x-sx,h:p.y-sy,stroke:strokeCol,fill:fillCol,size:sz};break;case 'circle':obj={type:'circle',cx:(sx+p.x)/2,cy:(sy+p.y)/2,rx:(p.x-sx)/2,ry:(p.y-sy)/2,stroke:strokeCol,fill:fillCol,size:sz};break;case 'arrow':obj={type:'arrow',x1:sx,y1:sy,x2:p.x,y2:p.y,stroke:strokeCol,size:sz};break;}preview=null;if(obj){objects.push(obj);pushH();markD();}redraw();}
+function eraseAt(x,y){const r=sz*5;objects=objects.filter(o=>{if(o.type==='pen')return!o.pts.some(pt=>(pt.x-x)**2+(pt.y-y)**2<r*r);if(['text','arrow','line'].includes(o.type))return((o.x||o.x1)-x)**2+((o.y||o.y1)-y)**2>r*r*4;return true;});markD();redraw();}
+function buildMM(x,y,text='Node',id=null){const nid=id||'mm_'+Date.now(),area=$('cvarea'),el=document.createElement('div');el.className='mmnode';el.contentEditable=me.role==='teacher'?'true':'false';el.textContent=text;el.style.left=(x+panX)+'px';el.style.top=(y+panY)+'px';el.dataset.id=nid;let drag=false,ox=0,oy=0;el.addEventListener('mousedown',ev=>{if(document.activeElement===el&&el.isContentEditable)return;drag=true;ox=ev.clientX-el.offsetLeft;oy=ev.clientY-el.offsetTop;ev.stopPropagation();});document.addEventListener('mousemove',ev=>{if(!drag)return;el.style.left=(ev.clientX-ox)+'px';el.style.top=(ev.clientY-oy)+'px';markD();});document.addEventListener('mouseup',()=>{drag=false;});el.addEventListener('dblclick',()=>{if(me.role!=='teacher')return;if(confirm('Xóa node?')){el.remove();mmnodes=mmnodes.filter(n=>n.id!==nid);markD();}});el.addEventListener('input',()=>markD());area.appendChild(el);mmnodes.push({id:nid,el});markD();}
+function showTx(x,y){txPos={x,y};const ov=$('txov'),r=cv.getBoundingClientRect();ov.style.display='block';ov.style.left=(r.left+x+panX)+'px';ov.style.top=(r.top+y+panY-20)+'px';$('txf').value='';$('txf').focus();}
+$('txf').addEventListener('keydown',e=>{if(e.key==='Enter'){const t=$('txf').value.trim();if(t){objects.push({type:'text',x:txPos.x,y:txPos.y,text:t,stroke:strokeCol,size:sz});pushH();markD();redraw();}$('txov').style.display='none';}if(e.key==='Escape')$('txov').style.display='none';});
+qq('.tbtn[data-tool]').forEach(b=>b.addEventListener('click',()=>{tool=b.dataset.tool;qq('.tbtn[data-tool]').forEach(x=>x.classList.remove('on'));b.classList.add('on');cv.style.cursor=tool==='pan'?'grab':tool==='eraser'?'cell':tool==='select'?'default':'crosshair';}));
+$('undo-btn').addEventListener('click',undo);$('redo-btn').addEventListener('click',redo);
+$('clear-btn').addEventListener('click',()=>{if(!confirm('Xóa toàn bộ?'))return;objects=[];mmnodes.forEach(n=>n.el.remove());mmnodes=[];pushH();markD();redraw();});
+$('s-col').addEventListener('input',e=>strokeCol=e.target.value);$('f-col').addEventListener('input',e=>fillCol=e.target.value);
+$('sz-sl').addEventListener('input',e=>{sz=+e.target.value;$('szval').textContent=sz;});
+function pushH(){hist.push(JSON.parse(JSON.stringify(objects)));if(hist.length>80)hist.shift();redos=[];}
+function undo(){if(hist.length<2)return;redos.push(hist.pop());objects=JSON.parse(JSON.stringify(hist[hist.length-1]));markD();redraw();}
+function redo(){if(!redos.length)return;const n=redos.pop();hist.push(n);objects=JSON.parse(JSON.stringify(n));markD();redraw();}
+document.addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(e.target.tagName)||e.target.isContentEditable)return;const map={v:'select',h:'pan',p:'pen',l:'line',r:'rect',c:'circle',a:'arrow',t:'text',m:'mindmap',e:'eraser'};if(map[e.key.toLowerCase()])document.querySelector(`[data-tool="${map[e.key.toLowerCase()]}"]`)?.click();if((e.ctrlKey||e.metaKey)&&e.key==='z'){e.preventDefault();undo();}if((e.ctrlKey||e.metaKey)&&e.key==='y'){e.preventDefault();redo();}if((e.ctrlKey||e.metaKey)&&e.key==='s'){e.preventDefault();saveCanvas();}});
+cv.addEventListener('mousedown',e=>{if(e.button===2){panning=true;panSX=e.clientX-panX;panSY=e.clientY-panY;cv.style.cursor='grabbing';}});
+function markD(){dirty=true;$('savest').textContent='⬤ Chưa lưu';$('savest').className='savest dirty';}
+async function saveCanvas(){if(!activePage)return;const mm=mmnodes.map(n=>({type:'mindmap',id:n.id,x:parseInt(n.el.style.left)-panX,y:parseInt(n.el.style.top)-panY,text:n.el.textContent}));const data={objects:[...objects.map(o=>{const c={...o};delete c._img;return c;}),...mm]};const res=await api('POST',{action:'saveCanvas',token:me.email||'teacher',pageId:activePage.id,canvasData:data});if(res.ok){dirty=false;$('savest').textContent='✓ Đã lưu';$('savest').className='savest clean';}}
+
+// ── TIMER ──────────────────────────────────────────────────────
+let tS=300,tR=false,tT=null;
+$('cv-timer').addEventListener('click',()=>$('timerw').classList.toggle('on'));
+$('t-start').addEventListener('click',()=>{if(tR)return;tR=true;tT=setInterval(()=>{if(tS<=0){clearInterval(tT);tR=false;toast('⏰ Hết giờ!');return;}tS--;updT();},1000);});
+$('t-pause').addEventListener('click',()=>{tR=false;clearInterval(tT);});
+$('t-reset').addEventListener('click',()=>{tR=false;clearInterval(tT);tS=300;updT();});
+qq('.tpre').forEach(b=>b.addEventListener('click',()=>{tR=false;clearInterval(tT);tS=+b.dataset.m*60;updT();}));
+function updT(){const m=String(Math.floor(tS/60)).padStart(2,'0'),s=String(tS%60).padStart(2,'0');$('tdisp').textContent=m+':'+s;$('tdisp').className='tdisp'+(tS<=30?' warn':'');}
+
+// ── MEDIA ──────────────────────────────────────────────────────
+$('cv-media').addEventListener('click',()=>$('mediamodal').classList.add('open'));
+$('closemedia').addEventListener('click',()=>$('mediamodal').classList.remove('open'));
+$('dropz').addEventListener('click',()=>$('filein').click());
+$('dropz').addEventListener('dragover',e=>{e.preventDefault();$('dropz').classList.add('over');});
+$('dropz').addEventListener('dragleave',()=>$('dropz').classList.remove('over'));
+$('dropz').addEventListener('drop',e=>{e.preventDefault();$('dropz').classList.remove('over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+$('filein').addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+function handleFile(f){$('mediamodal').classList.remove('open');if(!f.type.startsWith('image/')){toast('Chỉ hỗ trợ ảnh','err');return;}const reader=new FileReader();reader.onload=e=>{const img=new Image();img.onload=()=>{const sc=Math.min(1,(cv.width*.55)/img.width);objects.push({type:'image',x:60,y:60,w:img.width*sc,h:img.height*sc,src:e.target.result,_img:img});pushH();markD();redraw();};img.src=e.target.result;};reader.readAsDataURL(f);toast('✅ Đã thêm ảnh');}
+
+// ── SHARE ──────────────────────────────────────────────────────
+$('cv-share').addEventListener('click',openShare);
+$('closeshare').addEventListener('click',()=>$('sharemodal').classList.remove('open'));
+$('copysh').addEventListener('click',()=>navigator.clipboard.writeText($('shsumm').textContent+'\n'+$('shnote').value).then(()=>toast('✅ Đã copy')));
+async function openShare(){await saveCanvas();$('shsubj').value=`[Venus ClassBoard] ${activePage.title} - ${activePage.date}`;const txts=objects.filter(o=>o.type==='text').map(o=>o.text);const mms=mmnodes.map(n=>n.el.textContent.trim()).filter(Boolean);const shps=objects.filter(o=>!['text','image','mindmap'].includes(o.type)).length;let s=`=== ${activePage.title} ===\n${activePage.date} - ${activeClass.name}\n\n`;if(txts.length)s+=`Van ban:\n${txts.map(t=>'  - '+t).join('\n')}\n\n`;if(mms.length)s+=`Mindmap:\n${mms.map(t=>'  - '+t).join('\n')}\n\n`;s+=`${shps} hinh ve - ${objects.filter(o=>o.type==='image').length} anh`;$('shsumm').textContent=s;$('shnote').value='';$('shprog').classList.remove('on');$('sharemodal').classList.add('open');}
+$('doshare').addEventListener('click',async()=>{const prog=$('shprog');prog.textContent='Dang lay danh sach SV...';prog.classList.add('on');$('doshare').disabled=true;const svRes=await api('GET',{action:'getStudentsInClass',token:'teacher',classId:activeClass.id});if(!svRes.ok||!svRes.students?.length){prog.textContent='Khong co SV trong lop';$('doshare').disabled=false;return;}prog.textContent='Dang xuat canvas...';const tc=document.createElement('canvas');tc.width=cv.width;tc.height=cv.height;const tc2=tc.getContext('2d');tc2.fillStyle='#f8f6f2';tc2.fillRect(0,0,tc.width,tc.height);tc2.drawImage(cv,0,0);mmnodes.forEach(n=>{const el=n.el,l=parseInt(el.style.left),t=parseInt(el.style.top),w=el.offsetWidth,h=el.offsetHeight;tc2.fillStyle='#f5ecd0';tc2.strokeStyle='#1a2e4a';tc2.lineWidth=2;tc2.beginPath();tc2.rect(l,t,w,h);tc2.fill();tc2.stroke();tc2.fillStyle='#1a2e4a';tc2.font='13px DM Sans,sans-serif';tc2.textAlign='center';tc2.fillText(el.textContent,l+w/2,t+h/2+5);});const imgData=tc.toDataURL('image/png');prog.textContent=`Dang gui ${svRes.students.length} SV...`;const res=await api('POST',{action:'shareSession',token:'teacher',pageId:activePage.id,subject:$('shsubj').value,summary:$('shsumm').textContent,note:$('shnote').value,canvasImage:imgData,students:svRes.students.map(s=>({name:s.name,email:s.email}))});$('doshare').disabled=false;if(res.ok){prog.textContent=`Da gui ${res.sent}/${res.total} SV!`;if(res.docUrl)prog.innerHTML+=`<br><a href="${res.docUrl}" target="_blank" style="color:var(--navy);font-weight:600">Xem Google Doc</a>`;toast('Da chia se');}else prog.textContent='Loi: '+res.error;});
+
+// ── INTERACT BOARD ─────────────────────────────────────────────
+const IB=(()=>{
+  let active=false,slots=[],sampleText='',pollI=null,pendSug=null;
+  const NSLOT=15,POLL=4000;
+  const layer=()=>$('iblayer'),ctrl=()=>$('ibctrl'),sBox=()=>$('sampbox'),sTa=()=>$('sampta'),cnt=()=>$('ibcnt');
+  const escH=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  async function activate(){
+    if(!activePage){toast('Chua mo trang','err');return;}
+    const svRes=await api('GET',{action:'getStudentsInClass',token:'teacher',classId:activeClass.id});
+    const students=(svRes.ok?svRes.students:[]).slice(0,NSLOT);
+    const slotRes=await api('GET',{action:'getInteractSlots',token:'teacher',pageId:activePage.id});
+    const saved=(slotRes.ok&&slotRes.slots)||[];
+    if(slotRes.ok&&slotRes.sampleText){sampleText=slotRes.sampleText;sTa().value=sampleText;}
+    slots=Array.from({length:NSLOT},(_,i)=>{
+      const sv=students[i]||null,sv2=saved.find(s=>s.id==='slot_'+i);
+      return{id:'slot_'+i,index:i,studentEmail:sv?sv.email:(sv2?.studentEmail||''),studentName:sv?sv.name:(sv2?.studentName||`Slot ${i+1}`),text:sv2?.text||'',suggestion:sv2?.suggestion||null,submittedAt:sv2?.submittedAt||null,x:sv2?.x??(60+(i%5)*218),y:sv2?.y??(80+Math.floor(i/5)*148)};
+    });
+    active=true;layer().classList.add('on');ctrl().classList.add('on');
+    $('cv-interact').textContent='Active';$('cv-interact').style.background='rgba(75,222,128,.25)';
+    renderAll();startPoll();
+    toast('Interact Mode bat - '+students.length+' SV duoc assign');
+  }
+
+  function deactivate(){
+    active=false;layer()?.classList.remove('on');ctrl()?.classList.remove('on');sBox()?.classList.remove('on');
+    const btn=$('cv-interact');if(btn){btn.textContent='Allow Interact';btn.style.background='';}
+    stopPoll();layer()?.querySelectorAll('.svslot').forEach(e=>e.remove());slots=[];
+  }
+
+  function renderAll(){layer().querySelectorAll('.svslot').forEach(e=>e.remove());slots.forEach(s=>renderSlot(s));updCnt();}
+
+  function renderSlot(slot){
+    const isT=me.role==='teacher',isMine=me.role==='student'&&me.email===slot.studentEmail;
+    const canEdit=isT||isMine,hasSug=!!(slot.suggestion?.status==='pending'),done=!!slot.submittedAt;
+    const el=document.createElement('div');
+    el.className='svslot'+(isMine?' mine':'')+(hasSug?' hassug':'')+(done?' done':'');
+    el.id='svs-'+slot.id;el.style.left=slot.x+'px';el.style.top=slot.y+'px';
+    const diff=hasSug?buildDiff(slot.text,slot.suggestion.text):'';
+    let fbtns='';
+    if(!done&&isMine)fbtns+=`<button class="sab sab-s">Nop</button>`;
+    if(isT&&slot.text&&!hasSug)fbtns+=`<button class="sab sab-sg">Suggest</button>`;
+    if(hasSug&&isMine)fbtns+=`<button class="sab sab-ac">Accept</button><button class="sab sab-rj">Reject</button>`;
+    if(hasSug&&isT)fbtns+=`<span class="slotwait">Cho SV duyet</span>`;
+    if(isMine&&slot.text&&!hasSug)fbtns+=`<button class="sab sab-sg" data-target="sample">Sug.Sample</button>`;
+    if(isT)fbtns+=`<button class="sab sab-rn">Doi ten</button>`;
+    el.innerHTML=`<div class="slothd"><span class="slotn">${slot.index+1}</span><span class="slotnm">${escH(slot.studentName)}</span><span class="slotdot ${done?'done':slot.text?'typing':''}"></span></div><textarea class="slotta" placeholder="${isMine?'Go bai vao day...':canEdit?'Cho SV go...':'—'}" ${(canEdit&&!done)?'':'disabled'}>${escH(slot.text)}</textarea><div class="slotdiff ${hasSug?'on':''}">${diff}</div><div class="slotft">${fbtns}<button class="sab sab-rz">Resize</button></div>`;
+    const ta=el.querySelector('.slotta');
+    if(!ta.disabled){let deb;ta.addEventListener('input',()=>{slot.text=ta.value;el.querySelector('.slotdot').className='slotdot typing';clearTimeout(deb);deb=setTimeout(()=>saveSlot(slot),1200);});}
+    el.querySelector('.sab-s')?.addEventListener('click',()=>submitSlot(slot,el));
+    el.querySelectorAll('.sab-sg').forEach(b=>b.addEventListener('click',()=>openSug(slot,b.dataset.target||'slot')));
+    el.querySelector('.sab-ac')?.addEventListener('click',()=>resolveSug(slot,'accepted'));
+    el.querySelector('.sab-rj')?.addEventListener('click',()=>resolveSug(slot,'rejected'));
+    el.querySelector('.sab-rn')?.addEventListener('click',()=>{const n=prompt('Ten moi:',slot.studentName);if(n?.trim()){slot.studentName=n.trim();el.querySelector('.slotnm').textContent=slot.studentName;saveSlot(slot);}});
+    makeDrag(el,el.querySelector('.slothd'),slot);makeResize(el,el.querySelector('.sab-rz'));
+    layer().appendChild(el);
+  }
+
+  function refreshSlot(slot){document.getElementById('svs-'+slot.id)?.remove();renderSlot(slot);}
+
+  async function submitSlot(slot,el){if(!slot.text.trim()){toast('Chua co noi dung','err');return;}slot.submittedAt=new Date().toISOString();await saveSlot(slot);refreshSlot(slot);updCnt();toast('Da nop bai!');}
+  async function saveSlot(slot){if(!activePage)return;await api('POST',{action:'saveInteractSlot',token:me.email||'teacher',pageId:activePage.id,slot:{id:slot.id,studentEmail:slot.studentEmail,studentName:slot.studentName,text:slot.text,suggestion:slot.suggestion,submittedAt:slot.submittedAt,x:slot.x,y:slot.y}});}
+
+  function openSug(slot,target){
+    pendSug={slot,target};
+    $('sugtitle').textContent=target==='slot'?`Suggest cho ${slot?slot.studentName:'SV'}`:'De xuat Sample';
+    $('sugsub').textContent=target==='slot'?'Thay doi se hien trong o SV - ho co the Accept/Reject':'GV se thay de xuat cua ban';
+    $('sugorig').textContent=(target==='slot'?slot?.text:sampleText)||'(Chua co noi dung)';
+    $('sugnew').value=target==='slot'?slot?.text||'':sampleText;
+    $('sugov').classList.add('open');setTimeout(()=>$('sugnew').focus(),80);
+  }
+  async function confirmSug(){
+    if(!pendSug)return;const{slot,target}=pendSug;const newT=$('sugnew').value.trim();
+    if(!newT){toast('Nhap noi dung de xuat','err');return;}$('sug-ok').disabled=true;
+    if(target==='slot'){slot.suggestion={by:me.name||me.email,role:me.role,text:newT,status:'pending',at:new Date().toISOString()};await saveSlot(slot);refreshSlot(slot);toast('Da gui suggestion');}
+    else if(me.role==='teacher'){sampleText=newT;sTa().value=newT;await saveSamp();toast('Sample da cap nhat');}
+    else{await api('POST',{action:'saveSampleSuggestion',token:me.email,pageId:activePage.id,suggestion:{by:me.name||me.email,text:newT,at:new Date().toISOString()}});toast('Da gui de xuat den GV');}
+    $('sug-ok').disabled=false;$('sugov').classList.remove('open');pendSug=null;
+  }
+  async function resolveSug(slot,status){if(!slot.suggestion)return;if(status==='accepted'){slot.text=slot.suggestion.text;toast('Da chap nhan');}else toast('Da tu choi');slot.suggestion={...slot.suggestion,status};await saveSlot(slot);refreshSlot(slot);}
+
+  function buildDiff(orig,sugg){const oW=(orig||'').split(/\s+/).filter(Boolean),sW=(sugg||'').split(/\s+/).filter(Boolean),lcs=cLCS(oW,sW);let html='<span style="font-size:11px;font-weight:700;color:var(--tx3)">Suggest: </span>';let oi=0,si=0,li=0;while(oi<oW.length||si<sW.length){if(li<lcs.length&&oi<oW.length&&oW[oi]===lcs[li]&&si<sW.length&&sW[si]===lcs[li]){html+=escH(lcs[li])+' ';oi++;si++;li++;}else if(si<sW.length&&(li>=lcs.length||sW[si]!==lcs[li])){html+=`<span class="dins">${escH(sW[si])}</span> `;si++;}else{html+=`<span class="ddel">${escH(oW[oi])}</span> `;oi++;}}return html;}
+  function cLCS(a,b){const m=a.length,n=b.length,dp=Array.from({length:m+1},()=>new Array(n+1).fill(0));for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);const r=[];let i=m,j=n;while(i>0&&j>0){if(a[i-1]===b[j-1]){r.unshift(a[i-1]);i--;j--;}else if(dp[i-1][j]>dp[i][j-1])i--;else j--;}return r;}
+
+  async function showSample(){const res=await api('GET',{action:'getSampleAnswer',token:me.email||'teacher',pageId:activePage.id});if(res.ok&&res.text){sampleText=res.text;sTa().value=res.text;}const sb=sBox();sb.classList.add('on');if(!sb.style.left){sb.style.left='80px';sb.style.top='90px';}makeDrag(sb,$('sampdrag'),null);const ta=sTa();ta.disabled=me.role!=='teacher';if(!ta.disabled){let deb;ta.oninput=()=>{sampleText=ta.value;clearTimeout(deb);deb=setTimeout(saveSamp,1500);};}const ft=$('sampft');ft.innerHTML='';if(me.role==='student'){const b=document.createElement('button');b.className='sab sab-sg';b.textContent='De xuat chinh sua';b.addEventListener('click',()=>openSug(null,'sample'));ft.appendChild(b);}}
+  async function saveSamp(){if(!activePage)return;await api('POST',{action:'saveSampleAnswer',token:'teacher',pageId:activePage.id,text:sampleText});}
+
+  function startPoll(){pollI=setInterval(async()=>{if(!active||!activePage)return;const res=await api('GET',{action:'getInteractSlots',token:me.email||'teacher',pageId:activePage.id});if(!res.ok||!res.slots)return;let ch=false;res.slots.forEach(saved=>{const slot=slots.find(s=>s.id===saved.id);if(!slot)return;const ta=document.getElementById('svs-'+slot.id)?.querySelector('.slotta');if(ta&&ta===document.activeElement)return;const prev=slot.text+'|'+(slot.suggestion?.text||'')+'|'+slot.submittedAt;Object.assign(slot,{text:saved.text??slot.text,suggestion:saved.suggestion??null,submittedAt:saved.submittedAt??null,x:saved.x??slot.x,y:saved.y??slot.y});const curr=slot.text+'|'+(slot.suggestion?.text||'')+'|'+slot.submittedAt;if(curr!==prev){refreshSlot(slot);ch=true;}});if(me.role==='student'&&res.sampleText&&res.sampleText!==sampleText){sampleText=res.sampleText;sTa().value=res.sampleText;if(!sBox().classList.contains('on'))showSample();}if(ch)updCnt();},POLL);}
+  function stopPoll(){clearInterval(pollI);pollI=null;}
+  function updCnt(){const a=slots.filter(s=>s.studentEmail).length,d=slots.filter(s=>s.submittedAt).length;cnt().textContent=d+'/'+a+' da nop';}
+
+  async function checkAndJoin(){if(me.role!=='student')return;const res=await api('GET',{action:'getInteractSlots',token:me.email,pageId:activePage.id});if(!res.ok||!res.slots?.length)return;const my=res.slots.find(s=>s.studentEmail===me.email);if(!my)return;active=true;layer().classList.add('on');slots=res.slots;renderSlot(my);if(res.sampleText){sampleText=res.sampleText;sTa().value=res.sampleText;showSample();}startPoll();toast('O '+(my.index+1)+' - '+my.studentName);}
+
+  function makeDrag(el,handle,slot){let drag=false,ox=0,oy=0;handle.addEventListener('mousedown',e=>{if(e.target.tagName==='BUTTON'||e.target.tagName==='TEXTAREA')return;drag=true;ox=e.clientX-el.offsetLeft;oy=e.clientY-el.offsetTop;e.preventDefault();});document.addEventListener('mousemove',e=>{if(!drag)return;const nx=e.clientX-ox,ny=e.clientY-oy;el.style.left=nx+'px';el.style.top=ny+'px';if(slot){slot.x=nx;slot.y=ny;}});document.addEventListener('mouseup',()=>{drag=false;});}
+  function makeResize(el,handle){let r=false,sx2=0,sy2=0,sw=0,sh=0;handle.addEventListener('mousedown',e=>{r=true;sx2=e.clientX;sy2=e.clientY;sw=el.offsetWidth;sh=el.offsetHeight;e.preventDefault();e.stopPropagation();});document.addEventListener('mousemove',e=>{if(!r)return;el.style.width=Math.max(170,sw+e.clientX-sx2)+'px';el.style.height=Math.max(110,sh+e.clientY-sy2)+'px';});document.addEventListener('mouseup',()=>{r=false;});}
+
+  return{activate,deactivate,showSample,confirmSug,checkAndJoin};
+})();
+
+$('cv-interact').addEventListener('click',()=>IB.activate());
+$('ibstop').addEventListener('click',()=>{if(confirm('Dung Interact Mode?'))IB.deactivate();});
+$('ibsamp').addEventListener('click',()=>IB.showSample());
+$('hidesamp').addEventListener('click',()=>$('sampbox').classList.remove('on'));
+$('sug-cancel').addEventListener('click',()=>$('sugov').classList.remove('open'));
+$('sug-ok').addEventListener('click',()=>IB.confirmSug());
+
+
+// ================================================================
+// DARK MODE
+// ================================================================
+function applyDark(on){
+  document.body.classList.toggle('dark',on);
+  localStorage.setItem('vcb_dark', on?'1':'0');
+  const icon = on ? '☀️' : '🌙';
+  ['dark-toggle','dark-toggle-cs','dark-toggle-mob'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=icon;});
 }
-function toast(msg, type = 'ok') {
-  const el = $('toast');
-  el.textContent = msg;
-  el.className = `toast show ${type}`;
-  setTimeout(() => el.classList.remove('show'), 2800);
+// Init on load
+applyDark(localStorage.getItem('vcb_dark')==='1');
+['dark-toggle','dark-toggle-cs','dark-toggle-mob'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('click',()=>applyDark(!document.body.classList.contains('dark')));
+});
+
+// ================================================================
+// CANVAS BACKGROUNDS
+// ================================================================
+let currentBg = localStorage.getItem('vcb_bg') || 'white';
+const BG_COLORS = {white:'#ffffff',cream:'#f5f0e8',grid:'#ffffff',dot:'#ffffff',yellow:'#fef9e7',dark:'#16162a'};
+
+function drawCanvasBg(){
+  const w=cv.width,h=cv.height;
+  ctx.save(); ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle = BG_COLORS[currentBg] || '#ffffff';
+  ctx.fillRect(0,0,w,h);
+  if(currentBg==='grid'){
+    ctx.strokeStyle='rgba(26,46,74,.1)'; ctx.lineWidth=1;
+    const gs=20;
+    for(let x=0;x<=w;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+    for(let y=0;y<=h;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  } else if(currentBg==='dot'){
+    ctx.fillStyle='rgba(26,46,74,.22)';
+    const gs=18;
+    for(let x=gs;x<w;x+=gs) for(let y=gs;y<h;y+=gs){ctx.beginPath();ctx.arc(x,y,1.2,0,Math.PI*2);ctx.fill();}
+  } else if(currentBg==='dark'){
+    // subtle grid on dark
+    ctx.strokeStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1;
+    const gs=24;
+    for(let x=0;x<=w;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
+    for(let y=0;y<=h;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  }
+  ctx.restore();
 }
-async function api(method, params) {
+
+// Patch redraw to include bg
+const _origRedraw = redraw;
+window.redraw = function(){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  drawCanvasBg();
+  ctx.save(); ctx.translate(panX,panY);
+  objects.forEach(draw); if(preview)draw(preview);
+  ctx.restore();
+};
+
+// BG picker UI
+document.getElementById('cv-bg')?.addEventListener('click',()=>{
+  const p=document.getElementById('bg-picker');
+  p.classList.toggle('on');
+});
+document.querySelectorAll('.bgopt').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.bgopt').forEach(x=>x.classList.remove('sel'));
+    el.classList.add('sel');
+    currentBg = el.dataset.bg;
+    localStorage.setItem('vcb_bg', currentBg);
+    // sync dark mode with dark canvas bg
+    if(currentBg==='dark') applyDark(true);
+    document.getElementById('bg-picker').classList.remove('on');
+    redraw();
+  });
+});
+// Restore saved bg selection
+(()=>{
+  const saved = localStorage.getItem('vcb_bg');
+  if(saved){
+    document.querySelectorAll('.bgopt').forEach(x=>x.classList.remove('sel'));
+    document.querySelector(`[data-bg="${saved}"]`)?.classList.add('sel');
+  }
+})();
+
+// ================================================================
+// SPELL & GRAMMAR CHECK (via Claude API)
+// ================================================================
+// ================================================================
+// GRAMMAR CHECK — Teacher only, requires Claude API key
+// ================================================================
+let gramDebounce = null;
+const GRAM_DEBOUNCE = 2200;
+
+function getApiKey(){ return localStorage.getItem('vcb_apikey') || ''; }
+
+async function grammarCheck(text, panelEl, dotEl){
+  const key = getApiKey();
+  if(!key || !text || text.trim().length < 8){
+    if(dotEl) dotEl.className='sc-dot'; return;
+  }
+  if(dotEl) dotEl.className='sc-dot checking';
   try {
-    if (method === 'GET') {
-      const qs = new URLSearchParams(params).toString();
-      const r = await fetch(`${GAS_URL}?${qs}`);
-      return await r.json();
-    } else {
-      const r = await fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params),
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:300,
+        messages:[{role:'user',content:
+          'Find grammar errors in this English text. Reply ONLY with compact JSON, no markdown:\n'+
+          '{"errors":[{"original":"wrong","corrected":"right","note":"brief reason"}]}\n'+
+          'If no errors: {"errors":[]}\n\nText: '+JSON.stringify(text)
+        }]
+      })
+    });
+    const data = await resp.json();
+    if(data.error){ if(dotEl)dotEl.className='sc-dot'; return; }
+    const raw = (data.content?.[0]?.text||'{"errors":[]}').replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(raw);
+    if(!panelEl) return;
+    if(!parsed.errors.length){
+      if(dotEl) dotEl.className='sc-dot ok';
+      panelEl.classList.remove('on'); return;
+    }
+    if(dotEl) dotEl.className='sc-dot err';
+    panelEl.innerHTML = '<div class="sc-section">Grammar</div>' +
+      parsed.errors.map(e=>`
+        <div class="sc-item">
+          <div class="sc-orig">${e.original}</div>
+          <div class="sc-fix">&#8594; ${e.corrected}
+            <span style="color:var(--tx3);font-size:10px;margin-left:4px">${e.note||''}</span>
+            <button class="sc-apply" data-orig="${(e.original||'').replace(/"/g,'&quot;')}" data-fix="${(e.corrected||'').replace(/"/g,'&quot;')}">Apply</button>
+          </div>
+        </div>`).join('');
+    panelEl.classList.add('on');
+    panelEl.querySelectorAll('.sc-apply').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const ta=panelEl.closest('.sc-wrap')?.querySelector('textarea,input[type=text]');
+        if(!ta) return;
+        const re=new RegExp(btn.dataset.orig.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g');
+        ta.value=ta.value.replace(re,btn.dataset.fix);
+        ta.dispatchEvent(new Event('input'));
+        btn.closest('.sc-item')?.remove();
+        if(!panelEl.querySelector('.sc-item')) panelEl.classList.remove('on');
       });
-      return await r.json();
+    });
+  } catch(e){ if(dotEl) dotEl.className='sc-dot'; }
+}
+
+function attachGrammarCheck(textarea, panelEl, dotEl){
+  // native English spellcheck via browser
+  textarea.setAttribute('spellcheck','true');
+  textarea.setAttribute('lang','en');
+  textarea.setAttribute('lang','en');
+  textarea.setAttribute('lang','en');
+  // Claude grammar check (teacher only, debounced)
+  textarea.addEventListener('input',()=>{
+    clearTimeout(gramDebounce);
+    if(!getApiKey()){ if(panelEl) panelEl.classList.remove('on'); return; }
+    if(textarea.value.trim().length < 8){ if(dotEl)dotEl.className='sc-dot'; if(panelEl)panelEl.classList.remove('on'); return; }
+    gramDebounce = setTimeout(()=>grammarCheck(textarea.value, panelEl, dotEl), GRAM_DEBOUNCE);
+  });
+}
+
+// ================================================================
+// MOBILE STUDENT VIEW
+// ================================================================
+let mobSlot = null, mobSampleText = '';
+
+function isMobile(){ return window.innerWidth <= 640; }
+
+// Patch IB.checkAndJoin to redirect to mobile screen on phones
+const _origCheckJoin = IB.checkAndJoin.bind(IB);
+IB.checkAndJoin = async function(){
+  if(!isMobile()){ return _origCheckJoin(); }
+  // Mobile flow
+  if(!activePage) return;
+  const res = await api('GET',{action:'getInteractSlots',token:me.email,pageId:activePage.id});
+  if(!res.ok || !res.slots?.length) return;
+  const my = res.slots.find(s=>s.studentEmail===me.email);
+  if(!my) return;
+  mobSlot = my;
+  mobSampleText = res.sampleText || '';
+  // Show mobile screen instead of canvas
+  showScreen('mobile-slot-screen');
+  renderMobileSlot();
+  // Start polling for mobile
+  if(!IB._mobPoll) IB._mobPoll = setInterval(pollMobileSlot, 4000);
+};
+
+async function pollMobileSlot(){
+  if(!activePage || !mobSlot) return;
+  const res = await api('GET',{action:'getInteractSlots',token:me.email,pageId:activePage.id});
+  if(!res.ok || !res.slots) return;
+  const updated = res.slots.find(s=>s.studentEmail===me.email);
+  if(!updated) return;
+  const prev = JSON.stringify({text:mobSlot.text,suggestion:mobSlot.suggestion,submittedAt:mobSlot.submittedAt});
+  Object.assign(mobSlot,{text:updated.text,suggestion:updated.suggestion,submittedAt:updated.submittedAt});
+  if(JSON.stringify({text:mobSlot.text,suggestion:mobSlot.suggestion,submittedAt:mobSlot.submittedAt})!==prev) renderMobileSlot();
+  if(res.sampleText && res.sampleText !== mobSampleText){ mobSampleText=res.sampleText; renderMobileSlot(); }
+}
+
+function renderMobileSlot(){
+  const body = document.getElementById('mob-body');
+  const slot = mobSlot;
+  const hasSug = !!(slot.suggestion?.status==='pending');
+  const done = !!slot.submittedAt;
+
+  let html = '';
+  // Sample answer card
+  if(mobSampleText){
+    html += `<div class="mob-sample">
+      <div class="mob-sample-lbl">✦ Sample Answer</div>
+      <div class="mob-sample-text">${mobSampleText.replace(/\n/g,'<br>')}</div>
+      <button class="mob-btn mob-btn-sug" id="mob-sug-samp" style="margin-top:10px;width:100%">✏ Đề xuất chỉnh sửa Sample</button>
+    </div>`;
+  }
+
+  // Diff panel
+  const diffHtml = hasSug ? buildMobDiff(slot.text, slot.suggestion.text) : '';
+
+  // Answer box
+  html += `<div class="mob-answer">
+    <div class="mob-ans-hd">
+      <div class="mob-ans-num">${slot.index+1}</div>
+      <div class="mob-ans-name">${slot.studentName}</div>
+      <div class="mob-ans-dot ${done?'done':slot.text?'typing':''}"></div>
+    </div>
+    ${hasSug?`<div class="mob-diff on">${diffHtml}</div>`:''}
+    <div class="mob-ta-wrap sc-wrap" id="mob-sc-wrap">
+      <textarea class="mob-ta" id="mob-ta" rows="6" placeholder="Gõ bài vào đây…" ${done?'disabled':''}>${slot.text||''}</textarea>
+    </div>
+    <div class="mob-ft" id="mob-ft">
+      ${!done?`<button class="mob-btn mob-btn-sub" id="mob-submit">✓ Nộp bài</button>`:'<span style="color:var(--ok);font-weight:600;padding:8px">✓ Đã nộp</span>'}
+      ${hasSug?`<button class="mob-btn mob-btn-acc" id="mob-accept">✓ Accept</button><button class="mob-btn mob-btn-rej" id="mob-reject">✕ Reject</button>`:''}
+      ${slot.text&&!hasSug&&!done?`<button class="mob-btn mob-btn-sug" id="mob-sug">✏ Suggest GV</button>`:''}
+    </div>
+  </div>`;
+
+  body.innerHTML = html;
+
+  // Wire textarea
+  const ta = document.getElementById('mob-ta');
+  if(ta && !done){
+    let deb;
+    ta.addEventListener('input',()=>{
+      slot.text = ta.value;
+      clearTimeout(deb);
+      deb = setTimeout(async()=>{
+        await api('POST',{action:'saveInteractSlot',token:me.email,pageId:activePage.id,slot:{id:slot.id,studentEmail:slot.studentEmail,studentName:slot.studentName,text:slot.text,suggestion:slot.suggestion,submittedAt:slot.submittedAt,x:slot.x||0,y:slot.y||0}});
+      }, 1200);
+    });
+  }
+
+  // Submit
+  document.getElementById('mob-submit')?.addEventListener('click', async()=>{
+    if(!slot.text.trim()){toast('Chưa có nội dung','err');return;}
+    slot.submittedAt = new Date().toISOString();
+    await api('POST',{action:'saveInteractSlot',token:me.email,pageId:activePage.id,slot:{id:slot.id,studentEmail:slot.studentEmail,studentName:slot.studentName,text:slot.text,suggestion:slot.suggestion,submittedAt:slot.submittedAt,x:slot.x||0,y:slot.y||0}});
+    toast('✅ Đã nộp bài!'); renderMobileSlot();
+  });
+
+  // Accept/Reject
+  document.getElementById('mob-accept')?.addEventListener('click', async()=>{
+    slot.text=slot.suggestion.text; slot.suggestion={...slot.suggestion,status:'accepted'};
+    await api('POST',{action:'saveInteractSlot',token:me.email,pageId:activePage.id,slot:{id:slot.id,studentEmail:slot.studentEmail,studentName:slot.studentName,text:slot.text,suggestion:slot.suggestion,submittedAt:slot.submittedAt,x:slot.x||0,y:slot.y||0}});
+    toast('✅ Đã chấp nhận'); renderMobileSlot();
+  });
+  document.getElementById('mob-reject')?.addEventListener('click', async()=>{
+    slot.suggestion={...slot.suggestion,status:'rejected'};
+    await api('POST',{action:'saveInteractSlot',token:me.email,pageId:activePage.id,slot:{id:slot.id,studentEmail:slot.studentEmail,studentName:slot.studentName,text:slot.text,suggestion:slot.suggestion,submittedAt:slot.submittedAt,x:slot.x||0,y:slot.y||0}});
+    toast('Đã từ chối'); renderMobileSlot();
+  });
+
+  // Suggest to GV
+  document.getElementById('mob-sug')?.addEventListener('click', ()=>{
+    document.getElementById('sugtitle').textContent='✏️ Suggest chỉnh sửa của tôi';
+    document.getElementById('sugsub').textContent='GV sẽ thấy đề xuất và có thể reply';
+    document.getElementById('sugorig').textContent=slot.text;
+    document.getElementById('sugnew').value=slot.text;
+    document.getElementById('sugov').classList.add('open');
+    setTimeout(()=>document.getElementById('sugnew').focus(),80);
+    // Override confirm to save as suggestion on slot
+    window._mobSugPending = { slot, target:'slot' };
+  });
+
+  // Suggest on sample
+  document.getElementById('mob-sug-samp')?.addEventListener('click',()=>{
+    document.getElementById('sugtitle').textContent='✏️ Đề xuất chỉnh sửa Sample';
+    document.getElementById('sugsub').textContent='GV sẽ thấy đề xuất này';
+    document.getElementById('sugorig').textContent=mobSampleText;
+    document.getElementById('sugnew').value=mobSampleText;
+    document.getElementById('sugov').classList.add('open');
+    setTimeout(()=>document.getElementById('sugnew').focus(),80);
+    window._mobSugPending = { slot:null, target:'sample' };
+  });
+}
+
+function buildMobDiff(orig, sugg){
+  // Same LCS diff as desktop IB
+  if(!orig) return `<span style="color:var(--ok)">${sugg}</span>`;
+  return IB._buildDiff ? IB._buildDiff(orig,sugg) : `<strong>Suggest:</strong> ${sugg}`;
+}
+
+// Override sug-ok for mobile flow
+const _origSugOk = document.getElementById('sug-ok').onclick;
+document.getElementById('sug-ok').addEventListener('click', async function(e){
+  if(window._mobSugPending){
+    const {slot,target} = window._mobSugPending;
+    const newT = document.getElementById('sugnew').value.trim();
+    if(!newT){toast('Nhập nội dung','err');return;}
+    if(target==='slot' && slot){
+      slot.suggestion={by:me.name||me.email,role:'student',text:newT,status:'pending',at:new Date().toISOString()};
+      await api('POST',{action:'saveInteractSlot',token:me.email,pageId:activePage.id,slot:{id:slot.id,studentEmail:slot.studentEmail,studentName:slot.studentName,text:slot.text,suggestion:slot.suggestion,submittedAt:slot.submittedAt,x:slot.x||0,y:slot.y||0}});
+      toast('✅ Đã gửi suggestion');
+    } else if(target==='sample'){
+      await api('POST',{action:'saveSampleSuggestion',token:me.email,pageId:activePage.id,suggestion:{by:me.name||me.email,text:newT,at:new Date().toISOString()}});
+      toast('✅ Đã gửi đề xuất');
     }
-  } catch (e) {
-    console.error(e);
-    return { ok: false, error: 'Lỗi kết nối' };
+    document.getElementById('sugov').classList.remove('open');
+    window._mobSugPending = null;
+    if(isMobile()) renderMobileSlot();
   }
-}
-
-// ─── AUTH ─────────────────────────────────────────────────────
-$('login-btn').addEventListener('click', doLogin);
-$('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-$('logout-btn').addEventListener('click', () => {
-  currentUser = null;
-  localStorage.removeItem('cb_user');
-  showScreen('login-screen');
-  $('login-error').textContent = '';
-  $('login-email').value = '';
-  $('login-pass').value = '';
 });
 
-async function doLogin() {
-  const email = $('login-email').value.trim();
-  const pass = $('login-pass').value;
-  $('login-error').textContent = '';
-  if (!email || !pass) { $('login-error').textContent = 'Vui lòng nhập đầy đủ'; return; }
-  $('login-btn').textContent = 'Đang đăng nhập...';
-  $('login-btn').disabled = true;
-  const res = await api('GET', { action: 'login', email, password: pass });
-  $('login-btn').textContent = 'Đăng nhập';
-  $('login-btn').disabled = false;
-  if (res.ok) {
-    currentUser = res.user;
-    localStorage.setItem('cb_user', JSON.stringify(currentUser));
-    initDashboard();
-  } else {
-    $('login-error').textContent = res.error || 'Đăng nhập thất bại';
-  }
-}
-
-// Auto-login
-const saved = localStorage.getItem('cb_user');
-if (saved) { currentUser = JSON.parse(saved); initDashboard(); }
-
-// ─── DASHBOARD ────────────────────────────────────────────────
-async function initDashboard() {
+// Mobile back button
+document.getElementById('mob-back').addEventListener('click',()=>{
+  clearInterval(IB._mobPoll); IB._mobPoll=null; mobSlot=null;
   showScreen('dashboard-screen');
-  // Header
-  const initials = (currentUser.name || currentUser.email).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  $('dash-avatar').textContent = initials;
-  $('dash-name').textContent = currentUser.name || currentUser.email;
-  $('dash-role-tag').textContent = currentUser.role === 'teacher' ? 'Giáo viên' : 'Sinh viên';
-  $('dash-role-tag').className = `role-tag role-${currentUser.role}`;
-
-  renderDashContent();
-  await loadSessions();
-}
-
-function renderDashContent() {
-  const c = $('dash-content');
-  if (currentUser.role === 'teacher') {
-    c.innerHTML = `
-      <div class="teacher-panel">
-        <div class="panel-card">
-          <h3>➕ Tạo buổi học mới</h3>
-          <div class="form-row" style="margin-bottom:10px">
-            <input class="form-input" id="new-class" placeholder="Tên lớp (VD: AENG2A)" style="max-width:180px">
-            <input class="form-input" id="new-title" placeholder="Tiêu đề buổi học">
-          </div>
-          <button class="btn btn-primary" id="create-session-btn" style="width:auto;padding:10px 24px">Tạo session</button>
-        </div>
-        <div class="panel-card">
-          <h3>👥 Quản lý sinh viên</h3>
-          <div class="form-row" style="margin-bottom:10px">
-            <input class="form-input" id="new-sv-name" placeholder="Họ tên">
-            <input class="form-input" id="new-sv-email" placeholder="Email">
-            <input class="form-input" id="new-sv-pass" placeholder="Mật khẩu" type="password">
-            <input class="form-input" id="new-sv-class" placeholder="Lớp" style="max-width:120px">
-          </div>
-          <button class="btn btn-success" id="add-user-btn" style="width:auto;padding:10px 20px">Thêm SV</button>
-          <div id="user-table-wrap" style="margin-top:16px"></div>
-        </div>
-      </div>`;
-    $('create-session-btn').addEventListener('click', createSession);
-    $('add-user-btn').addEventListener('click', addUser);
-    loadUsers();
-  } else {
-    c.innerHTML = `
-      <div style="padding:20px 0">
-        <div style="font-size:22px;font-weight:600;margin-bottom:6px">Xin chào, ${currentUser.name || currentUser.email} 👋</div>
-        <div style="color:var(--text-muted);margin-bottom:24px">Lớp: <strong>${currentUser.class || '—'}</strong></div>
-        <div style="color:var(--text-muted);font-size:14px">← Chọn buổi học từ danh sách để vào bảng tương tác</div>
-      </div>`;
-  }
-}
-
-async function loadSessions() {
-  const res = await api('GET', { action: 'getSessions', token: currentUser.email });
-  if (!res.ok) { toast('Không tải được danh sách buổi học', 'err'); return; }
-  sessions = res.sessions || [];
-  renderSessionList();
-}
-
-function renderSessionList() {
-  const list = $('session-list');
-  if (!sessions.length) {
-    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Chưa có buổi học nào</div>`;
-    return;
-  }
-  list.innerHTML = sessions.map(s => `
-    <div class="session-item ${s.status==='active'?'active-session':''}" data-id="${s.id}">
-      <div class="session-title">${s.title}</div>
-      <div class="session-meta">
-        <span class="status-dot status-${s.status}"></span>
-        <span>${s.status === 'active' ? 'Đang hoạt động' : 'Đã kết thúc'}</span>
-        · <span>${s.class}</span>
-      </div>
-      <div style="font-size:11px;color:var(--text-muted);margin-top:3px">${s.date}</div>
-    </div>`).join('');
-
-  list.querySelectorAll('.session-item').forEach(el => {
-    el.addEventListener('click', () => openSession(el.dataset.id));
-  });
-}
-
-async function createSession() {
-  const cls = $('new-class').value.trim();
-  const title = $('new-title').value.trim();
-  if (!cls || !title) { toast('Nhập tên lớp và tiêu đề', 'err'); return; }
-  const res = await api('POST', { action: 'createSession', token: currentUser.email, class: cls, title });
-  if (res.ok) {
-    toast('✅ Đã tạo buổi học');
-    $('new-class').value = ''; $('new-title').value = '';
-    await loadSessions();
-    openSession(res.session.id);
-  } else { toast(res.error || 'Lỗi tạo session', 'err'); }
-}
-
-async function loadUsers() {
-  const res = await api('GET', { action: 'getUsers', token: currentUser.email });
-  if (!res.ok) return;
-  const users = (res.users || []).filter(u => u.role === 'student');
-  const wrap = $('user-table-wrap');
-  if (!users.length) { wrap.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Chưa có sinh viên nào</div>'; return; }
-  wrap.innerHTML = `<table class="user-table">
-    <thead><tr><th>Họ tên</th><th>Email</th><th>Lớp</th><th></th></tr></thead>
-    <tbody>${users.map(u=>`<tr>
-      <td>${u.name}</td><td>${u.email}</td><td>${u.class}</td>
-      <td><button class="btn btn-danger" style="font-size:11px;padding:3px 8px" data-email="${u.email}">Xóa</button></td>
-    </tr>`).join('')}</tbody>
-  </table>`;
-  wrap.querySelectorAll('[data-email]').forEach(btn => {
-    btn.addEventListener('click', () => deleteUser(btn.dataset.email));
-  });
-}
-
-async function addUser() {
-  const name = $('new-sv-name').value.trim();
-  const email = $('new-sv-email').value.trim();
-  const pass = $('new-sv-pass').value;
-  const cls = $('new-sv-class').value.trim();
-  if (!name || !email || !pass) { toast('Nhập đủ thông tin SV', 'err'); return; }
-  const res = await api('POST', { action: 'addUser', token: currentUser.email, name, email, password: pass, role: 'student', studentClass: cls });
-  if (res.ok) {
-    toast('✅ Đã thêm sinh viên');
-    $('new-sv-name').value=''; $('new-sv-email').value=''; $('new-sv-pass').value=''; $('new-sv-class').value='';
-    loadUsers();
-  } else { toast(res.error || 'Lỗi thêm SV', 'err'); }
-}
-
-async function deleteUser(email) {
-  if (!confirm(`Xóa tài khoản ${email}?`)) return;
-  const res = await api('POST', { action: 'deleteUser', token: currentUser.email, email });
-  if (res.ok) { toast('Đã xóa'); loadUsers(); }
-  else toast(res.error, 'err');
-}
-
-// ─── SESSION → CANVAS ─────────────────────────────────────────
-async function openSession(sessionId) {
-  const session = sessions.find(s => s.id === sessionId);
-  if (!session) return;
-  selectedSession = session;
-
-  // Update sidebar highlight
-  document.querySelectorAll('.session-item').forEach(el => el.classList.remove('selected'));
-  document.querySelector(`[data-id="${sessionId}"]`)?.classList.add('selected');
-
-  // Load canvas data
-  const res = await api('GET', { action: 'getCanvas', token: currentUser.email, sessionId });
-  if (!res.ok) { toast('Không tải được canvas', 'err'); return; }
-
-  // Setup canvas screen
-  $('canvas-class-tag').textContent = session.class;
-  $('canvas-session-name').textContent = session.title;
-
-  // Show close button only for active sessions (teacher only)
-  const closeBtn = $('close-session-btn');
-  closeBtn.style.display = (currentUser.role === 'teacher' && session.status === 'active') ? '' : 'none';
-
-  showScreen('canvas-screen');
-  initCanvas(res.canvas);
-}
-
-$('back-to-dash').addEventListener('click', () => {
-  if (unsaved) saveCanvasToServer();
-  showScreen('dashboard-screen');
-  loadSessions();
 });
 
-$('close-session-btn').addEventListener('click', async () => {
-  if (!confirm('Kết thúc buổi học này?')) return;
-  await saveCanvasToServer();
-  const res = await api('POST', { action: 'closeSession', token: currentUser.email, sessionId: selectedSession.id });
-  if (res.ok) { toast('✅ Đã kết thúc buổi học'); $('close-session-btn').style.display = 'none'; }
+// Also add spell check to interact slots on desktop
+const _origRenderSlot = typeof IB._renderSlot !== 'undefined' ? IB._renderSlot : null;
+
+// Expose buildDiff from IB for mobile use
+IB._buildDiff = function(orig,sugg){
+  const oW=(orig||'').split(/\s+/).filter(Boolean),sW=(sugg||'').split(/\s+/).filter(Boolean);
+  const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // simple word diff
+  let html='<strong style="font-size:12px;color:var(--tx3)">Suggest: </strong>';
+  const maxL=Math.max(oW.length,sW.length);
+  for(let i=0;i<maxL;i++){
+    const o=oW[i],s=sW[i];
+    if(o===s){html+=esc(s||'')+' ';}
+    else{if(o)html+=`<span class="ddel">${esc(o)}</span> `;if(s)html+=`<span class="dins">${esc(s)}</span> `;}
+  }
+  return html;
+};
+
+// ── Attach spell check to suggest modal textarea ──
+// Grammar check on suggest modal (teacher only — works when API key set)
+if(me?.role==='teacher') attachGrammarCheck(document.getElementById('sugnew'), null, null);
+
+
+// ── API Key (teacher grammar check) ───────────────────────────
+document.getElementById('cv-settings')?.addEventListener('click',()=>{
+  const k=getApiKey();
+  document.getElementById('apikey-input').value=k?'•'.repeat(16):'';
+  document.getElementById('apikey-status').textContent=k?'✓ API key đã được lưu':'Chưa có API key';
+  document.getElementById('apikey-modal').classList.add('open');
+});
+document.getElementById('apikey-cancel')?.addEventListener('click',()=>document.getElementById('apikey-modal').classList.remove('open'));
+document.getElementById('apikey-clear')?.addEventListener('click',()=>{
+  localStorage.removeItem('vcb_apikey');
+  document.getElementById('apikey-input').value='';
+  document.getElementById('apikey-status').textContent='Đã xóa API key';
+});
+document.getElementById('apikey-save')?.addEventListener('click',()=>{
+  const v=document.getElementById('apikey-input').value.trim();
+  if(!v||v.startsWith('•')){ document.getElementById('apikey-modal').classList.remove('open'); return; }
+  if(!v.startsWith('sk-ant-')){ document.getElementById('apikey-status').textContent='⚠ Key phải bắt đầu bằng sk-ant-'; return; }
+  localStorage.setItem('vcb_apikey',v);
+  document.getElementById('apikey-status').textContent='✅ Đã lưu';
+  setTimeout(()=>document.getElementById('apikey-modal').classList.remove('open'),800);
 });
 
-// ─── CANVAS ENGINE ────────────────────────────────────────────
-function initCanvas(canvasData) {
-  resizeCanvas();
-  panOffsetX = 0; panOffsetY = 0;
-  objects = [];
-  redoStack = [];
-  mindmapNodes.forEach(n => n.el.remove());
-  mindmapNodes = [];
+// Show settings button only for teacher on active pages
+const _patchOpenPage = openPage;
+window.openPage = async function(pid){
+  await _patchOpenPage(pid);
+  const isT = me?.role==='teacher';
+  document.getElementById('cv-settings').style.display = isT ? '' : 'none';
+};
 
-  // Replay saved objects
-  if (canvasData && canvasData.objects) {
-    objects = canvasData.objects.filter(o => o.type !== 'mindmap');
-    // Rebuild mindmap nodes
-    canvasData.objects.filter(o => o.type === 'mindmap').forEach(o => createMindmapNode(o.x, o.y, o.text, o.id));
-  }
-  redrawAll();
-  saveHistory();
-  scheduleAutoSave();
-}
-
-function resizeCanvas() {
-  const area = $('canvas-area');
-  canvas.width = area.clientWidth;
-  canvas.height = area.clientHeight;
-}
-window.addEventListener('resize', () => { resizeCanvas(); redrawAll(); });
-
-// ─── DRAW ─────────────────────────────────────────────────────
-function redrawAll() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
-  ctx.translate(panOffsetX, panOffsetY);
-  objects.forEach(drawObject);
-  // Draw preview
-  if (previewObject) drawObject(previewObject);
-  ctx.restore();
-}
-
-function drawObject(obj) {
-  ctx.save();
-  ctx.strokeStyle = obj.stroke || '#4f8ef7';
-  ctx.fillStyle = obj.fill || 'transparent';
-  ctx.lineWidth = obj.size || 3;
-  ctx.lineCap = 'round';
-  ctx.lineJoin = 'round';
-
-  switch (obj.type) {
-    case 'pen':
-      if (!obj.points || obj.points.length < 2) break;
-      ctx.beginPath();
-      ctx.moveTo(obj.points[0].x, obj.points[0].y);
-      for (let i = 1; i < obj.points.length; i++) ctx.lineTo(obj.points[i].x, obj.points[i].y);
-      ctx.stroke();
-      break;
-    case 'line':
-      ctx.beginPath(); ctx.moveTo(obj.x1, obj.y1); ctx.lineTo(obj.x2, obj.y2); ctx.stroke();
-      break;
-    case 'rect':
-      ctx.beginPath(); ctx.rect(obj.x, obj.y, obj.w, obj.h);
-      if (obj.fill && obj.fill !== 'transparent' && obj.fill !== '#00000000') ctx.fill();
-      ctx.stroke();
-      break;
-    case 'circle':
-      ctx.beginPath();
-      ctx.ellipse(obj.cx, obj.cy, Math.abs(obj.rx), Math.abs(obj.ry), 0, 0, Math.PI*2);
-      if (obj.fill && obj.fill !== 'transparent' && obj.fill !== '#00000000') ctx.fill();
-      ctx.stroke();
-      break;
-    case 'arrow':
-      drawArrow(ctx, obj.x1, obj.y1, obj.x2, obj.y2, obj.stroke, obj.size);
-      break;
-    case 'text':
-      ctx.fillStyle = obj.stroke;
-      ctx.font = `${obj.size*4 || 16}px DM Sans, sans-serif`;
-      ctx.fillText(obj.text, obj.x, obj.y);
-      break;
-    case 'image':
-      if (obj._img) {
-        ctx.drawImage(obj._img, obj.x, obj.y, obj.w, obj.h);
-      } else {
-        const img = new Image();
-        img.onload = () => { obj._img = img; redrawAll(); };
-        img.src = obj.src;
+// Attach grammar check to slot textareas when rendered (teacher only, desktop)
+// We hook into the slot render via MutationObserver on ib-layer
+const ibObserver = new MutationObserver(mutations=>{
+  if(me?.role!=='teacher') return;
+  mutations.forEach(m=>{
+    m.addedNodes.forEach(node=>{
+      if(node.nodeType!==1) return;
+      const ta = node.querySelector?.('.slotta');
+      if(ta && !ta.dataset.gramHooked){
+        ta.dataset.gramHooked='1';
+        // Add sc-wrap + panel to slot
+        const wrap = ta.parentElement;
+        if(wrap && !wrap.querySelector('.sc-panel')){
+          wrap.style.position='relative';
+          const dot = document.createElement('span');
+          dot.className='sc-dot'; dot.style.cssText='position:absolute;right:8px;bottom:8px;pointer-events:none';
+          const panel = document.createElement('div');
+          panel.className='sc-panel';
+          wrap.appendChild(dot); wrap.appendChild(panel);
+          attachGrammarCheck(ta, panel, dot);
+        }
       }
-      break;
-  }
-  ctx.restore();
-}
-
-function drawArrow(ctx, x1, y1, x2, y2, color, size) {
-  const headSize = (size || 3) * 4 + 6;
-  const angle = Math.atan2(y2 - y1, x2 - x1);
-  ctx.beginPath();
-  ctx.moveTo(x1, y1);
-  ctx.lineTo(x2, y2);
-  ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(x2, y2);
-  ctx.lineTo(x2 - headSize * Math.cos(angle - Math.PI/6), y2 - headSize * Math.sin(angle - Math.PI/6));
-  ctx.lineTo(x2 - headSize * Math.cos(angle + Math.PI/6), y2 - headSize * Math.sin(angle + Math.PI/6));
-  ctx.closePath();
-  ctx.fillStyle = color || '#4f8ef7';
-  ctx.fill();
-}
-
-// ─── MOUSE EVENTS ─────────────────────────────────────────────
-let currentPenPoints = [];
-let previewObject = null;
-
-function getPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  return {
-    x: clientX - rect.left - panOffsetX,
-    y: clientY - rect.top - panOffsetY,
-  };
-}
-
-canvas.addEventListener('mousedown', onPointerDown);
-canvas.addEventListener('mousemove', onPointerMove);
-canvas.addEventListener('mouseup', onPointerUp);
-canvas.addEventListener('mouseleave', onPointerUp);
-canvas.addEventListener('touchstart', onPointerDown, { passive: false });
-canvas.addEventListener('touchmove', onPointerMove, { passive: false });
-canvas.addEventListener('touchend', onPointerUp);
-
-function onPointerDown(e) {
-  e.preventDefault();
-  if (currentUser.role === 'student') return; // students read-only
-  if (tool === 'mindmap') { const p = getPos(e); createMindmapNode(p.x, p.y); return; }
-  if (tool === 'text') { const p = getPos(e); showTextInput(p.x, p.y); return; }
-
-  const p = getPos(e);
-  startX = p.x; startY = p.y;
-  lastX = p.x; lastY = p.y;
-
-  if (tool === 'pan' || e.button === 2) {
-    isPanning = true;
-    panStartX = e.clientX - panOffsetX;
-    panStartY = e.clientY - panOffsetY;
-    canvas.style.cursor = 'grabbing';
-    return;
-  }
-  if (tool === 'select') { handleSelectDown(p); return; }
-  isDrawing = true;
-  if (tool === 'pen') currentPenPoints = [{ x: p.x, y: p.y }];
-}
-
-function onPointerMove(e) {
-  e.preventDefault();
-  const p = getPos(e);
-
-  if (isPanning) {
-    panOffsetX = e.clientX - panStartX;
-    panOffsetY = e.clientY - panStartY;
-    redrawAll(); return;
-  }
-  if (!isDrawing) return;
-
-  if (tool === 'pen') {
-    currentPenPoints.push({ x: p.x, y: p.y });
-    previewObject = { type:'pen', points: currentPenPoints, stroke: strokeColor, size: strokeSize };
-    redrawAll(); return;
-  }
-
-  // Shape preview
-  switch (tool) {
-    case 'line':
-      previewObject = { type:'line', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
-    case 'rect':
-      previewObject = { type:'rect', x:startX, y:startY, w:p.x-startX, h:p.y-startY, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
-    case 'circle':
-      previewObject = { type:'circle', cx:(startX+p.x)/2, cy:(startY+p.y)/2, rx:(p.x-startX)/2, ry:(p.y-startY)/2, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
-    case 'arrow':
-      previewObject = { type:'arrow', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
-    case 'eraser':
-      eraseAt(p.x, p.y); return;
-  }
-  redrawAll();
-}
-
-function onPointerUp(e) {
-  if (isPanning) { isPanning = false; canvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair'; return; }
-  if (!isDrawing) return;
-  isDrawing = false;
-  const p = e.touches ? getPos({clientX:e.changedTouches[0].clientX, clientY:e.changedTouches[0].clientY}) : getPos(e);
-
-  let obj = null;
-  switch (tool) {
-    case 'pen':
-      if (currentPenPoints.length > 1) obj = { type:'pen', points:[...currentPenPoints], stroke:strokeColor, size:strokeSize };
-      currentPenPoints = []; break;
-    case 'line':   obj = { type:'line', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
-    case 'rect':   obj = { type:'rect', x:startX, y:startY, w:p.x-startX, h:p.y-startY, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
-    case 'circle': obj = { type:'circle', cx:(startX+p.x)/2, cy:(startY+p.y)/2, rx:(p.x-startX)/2, ry:(p.y-startY)/2, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
-    case 'arrow':  obj = { type:'arrow', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
-  }
-  previewObject = null;
-  if (obj) { objects.push(obj); saveHistory(); markUnsaved(); }
-  redrawAll();
-}
-
-// Eraser
-function eraseAt(x, y) {
-  const r = strokeSize * 4;
-  objects = objects.filter(obj => {
-    if (obj.type === 'pen') return !obj.points.some(pt => dist(pt.x, pt.y, x, y) < r);
-    if (obj.type === 'text') return dist(obj.x, obj.y, x, y) > r * 2;
-    return true; // shapes: simplified
-  });
-  markUnsaved(); redrawAll();
-}
-function dist(x1,y1,x2,y2) { return Math.sqrt((x2-x1)**2+(y2-y1)**2); }
-
-// Select (basic)
-function handleSelectDown(p) { /* future: drag to move objects */ }
-
-// ─── MINDMAP NODES ────────────────────────────────────────────
-function createMindmapNode(x, y, text = 'Node', id = null) {
-  const nodeId = id || 'mm_' + Date.now();
-  const area = $('canvas-area');
-  const el = document.createElement('div');
-  el.className = 'mindmap-node';
-  el.contentEditable = currentUser.role === 'teacher' ? 'true' : 'false';
-  el.textContent = text;
-  el.style.left = (x + panOffsetX) + 'px';
-  el.style.top = (y + panOffsetY) + 'px';
-  el.dataset.id = nodeId;
-
-  // Drag
-  let dragging = false, dsx, dsy, dox, doy;
-  el.addEventListener('mousedown', ev => {
-    if (ev.target.isContentEditable && document.activeElement === el) return;
-    dragging = true;
-    dsx = ev.clientX; dsy = ev.clientY;
-    dox = el.offsetLeft; doy = el.offsetTop;
-    ev.stopPropagation();
-  });
-  document.addEventListener('mousemove', ev => {
-    if (!dragging) return;
-    el.style.left = (dox + ev.clientX - dsx) + 'px';
-    el.style.top = (doy + ev.clientY - dsy) + 'px';
-    markUnsaved();
-  });
-  document.addEventListener('mouseup', () => { dragging = false; });
-
-  // Delete on double-click (teacher)
-  el.addEventListener('dblclick', () => {
-    if (currentUser.role !== 'teacher') return;
-    if (confirm('Xóa node này?')) {
-      el.remove();
-      mindmapNodes = mindmapNodes.filter(n => n.id !== nodeId);
-      markUnsaved();
-    }
-  });
-
-  el.addEventListener('input', () => markUnsaved());
-
-  area.appendChild(el);
-  mindmapNodes.push({ id: nodeId, el, x, y });
-  markUnsaved();
-  return el;
-}
-
-// ─── TEXT INPUT ───────────────────────────────────────────────
-let textPos = null;
-function showTextInput(x, y) {
-  textPos = { x, y };
-  const overlay = $('text-input-overlay');
-  const rect = canvas.getBoundingClientRect();
-  overlay.style.display = 'block';
-  overlay.style.left = (rect.left + x + panOffsetX) + 'px';
-  overlay.style.top = (rect.top + y + panOffsetY - 20) + 'px';
-  $('text-input-field').value = '';
-  $('text-input-field').focus();
-}
-$('text-input-field').addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    const text = $('text-input-field').value.trim();
-    if (text) {
-      objects.push({ type:'text', x:textPos.x, y:textPos.y, text, stroke:strokeColor, size:strokeSize });
-      saveHistory(); markUnsaved(); redrawAll();
-    }
-    $('text-input-overlay').style.display = 'none';
-  }
-  if (e.key === 'Escape') { $('text-input-overlay').style.display = 'none'; }
-});
-
-// ─── TOOLBAR ──────────────────────────────────────────────────
-document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    tool = btn.dataset.tool;
-    document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    canvas.style.cursor = tool === 'pan' ? 'grab' : tool === 'eraser' ? 'cell' : tool === 'select' ? 'default' : 'crosshair';
+    });
   });
 });
-$('undo-btn').addEventListener('click', undo);
-$('redo-btn').addEventListener('click', redo);
-$('clear-btn').addEventListener('click', () => {
-  if (!confirm('Xóa toàn bộ canvas?')) return;
-  objects = []; mindmapNodes.forEach(n=>n.el.remove()); mindmapNodes=[];
-  saveHistory(); markUnsaved(); redrawAll();
-});
+ibObserver.observe(document.getElementById('iblayer'), {childList:true, subtree:true});
 
-// Props
-$('stroke-color').addEventListener('input', e => strokeColor = e.target.value);
-$('fill-color').addEventListener('input', e => fillColor = e.target.value);
-$('stroke-size').addEventListener('input', e => {
-  strokeSize = +e.target.value;
-  $('size-label').textContent = strokeSize;
-});
-
-// ─── UNDO/REDO ────────────────────────────────────────────────
-function saveHistory() {
-  history.push(JSON.parse(JSON.stringify(objects)));
-  if (history.length > 60) history.shift();
-  redoStack = [];
-}
-function undo() {
-  if (history.length < 2) return;
-  redoStack.push(history.pop());
-  objects = JSON.parse(JSON.stringify(history[history.length-1]));
-  markUnsaved(); redrawAll();
-}
-function redo() {
-  if (!redoStack.length) return;
-  const next = redoStack.pop();
-  history.push(next);
-  objects = JSON.parse(JSON.stringify(next));
-  markUnsaved(); redrawAll();
-}
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undo(); }
-  if ((e.ctrlKey||e.metaKey) && e.key==='y') { e.preventDefault(); redo(); }
-});
-
-// ─── TIMER ────────────────────────────────────────────────────
-$('toggle-timer-btn').addEventListener('click', () => {
-  const w = $('timer-widget');
-  w.classList.toggle('visible');
-});
-$('timer-start').addEventListener('click', startTimer);
-$('timer-pause').addEventListener('click', pauseTimer);
-$('timer-reset').addEventListener('click', resetTimer);
-document.querySelectorAll('.preset-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    timerSeconds = +btn.dataset.mins * 60;
-    timerRunning = false;
-    clearInterval(timerInterval);
-    updateTimerDisplay();
-  });
-});
-
-function startTimer() {
-  if (timerRunning) return;
-  timerRunning = true;
-  timerInterval = setInterval(() => {
-    if (timerSeconds <= 0) { clearInterval(timerInterval); timerRunning = false; toast('⏰ Hết giờ!'); return; }
-    timerSeconds--;
-    updateTimerDisplay();
-  }, 1000);
-}
-function pauseTimer() { timerRunning = false; clearInterval(timerInterval); }
-function resetTimer() { pauseTimer(); timerSeconds = 300; updateTimerDisplay(); }
-function updateTimerDisplay() {
-  const m = String(Math.floor(timerSeconds/60)).padStart(2,'0');
-  const s = String(timerSeconds%60).padStart(2,'0');
-  const el = $('timer-display');
-  el.textContent = `${m}:${s}`;
-  el.className = 'timer-display' + (timerSeconds <= 30 ? ' warning' : '');
-}
-
-// ─── PDF / IMAGE UPLOAD ───────────────────────────────────────
-$('open-pdf-btn').addEventListener('click', () => $('pdf-overlay').classList.add('open'));
-$('close-pdf-modal').addEventListener('click', () => $('pdf-overlay').classList.remove('open'));
-$('drop-zone').addEventListener('click', () => $('file-input').click());
-$('drop-zone').addEventListener('dragover', e => { e.preventDefault(); $('drop-zone').classList.add('drag-over'); });
-$('drop-zone').addEventListener('dragleave', () => $('drop-zone').classList.remove('drag-over'));
-$('drop-zone').addEventListener('drop', e => {
-  e.preventDefault(); $('drop-zone').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) handleFile(file);
-});
-$('file-input').addEventListener('change', e => {
-  if (e.target.files[0]) handleFile(e.target.files[0]);
-});
-
-function handleFile(file) {
-  $('pdf-overlay').classList.remove('open');
-  if (file.type.startsWith('image/')) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const maxW = canvas.width * 0.6;
-        const scale = Math.min(1, maxW / img.width);
-        objects.push({ type:'image', x:50, y:50, w:img.width*scale, h:img.height*scale, src:e.target.result, _img:img });
-        saveHistory(); markUnsaved(); redrawAll();
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-    toast('✅ Đã thêm ảnh lên canvas');
-  } else if (file.type === 'application/pdf') {
-    toast('PDF: kéo thả ảnh chụp từng trang lên canvas nhé (PDF render cần thư viện ngoài)', 'err');
-  }
-}
-
-// ─── SAVE ─────────────────────────────────────────────────────
-function markUnsaved() {
-  unsaved = true;
-  $('save-indicator').textContent = '● Chưa lưu';
-  $('save-indicator').style.color = 'var(--accent2)';
-}
-
-function scheduleAutoSave() {
-  clearInterval(autoSaveTimer);
-  autoSaveTimer = setInterval(() => {
-    if (unsaved) saveCanvasToServer();
-  }, 15000); // auto-save mỗi 15 giây
-}
-
-async function saveCanvasToServer() {
-  if (!selectedSession) return;
-  // Mindmap nodes positions
-  const mmObjects = mindmapNodes.map(n => ({
-    type: 'mindmap',
-    id: n.id,
-    x: parseInt(n.el.style.left) - panOffsetX,
-    y: parseInt(n.el.style.top) - panOffsetY,
-    text: n.el.textContent,
-  }));
-  const canvasData = {
-    objects: [...objects.map(o => { const c={...o}; delete c._img; return c; }), ...mmObjects],
-    background: '#0e0f11',
-  };
-  const res = await api('POST', { action:'saveCanvas', token:currentUser.email, sessionId:selectedSession.id, canvasData });
-  if (res.ok) {
-    unsaved = false;
-    $('save-indicator').textContent = '● Đã lưu';
-    $('save-indicator').style.color = 'var(--success)';
-  }
-}
-
-// Manual save shortcut
-document.addEventListener('keydown', e => {
-  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveCanvasToServer(); }
-});
-
-// Right-click pan
-canvas.addEventListener('contextmenu', e => e.preventDefault());
-canvas.addEventListener('mousedown', e => {
-  if (e.button === 2) {
-    isPanning = true;
-    panStartX = e.clientX - panOffsetX;
-    panStartY = e.clientY - panOffsetY;
-    canvas.style.cursor = 'grabbing';
-  }
-});
 </script>
 </body>
 </html>

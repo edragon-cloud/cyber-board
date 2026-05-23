@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClassBoard – DNU</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN: Dark utilitarian + sharp accent (classroom tool feel)
+   Font: DM Sans (UI) + Space Mono (labels/code)
+   ============================================================ */
+:root {
+  --bg:         #0e0f11;
+  --surface:    #16181c;
+  --surface2:   #1e2026;
+  --border:     #2a2d35;
+  --accent:     #4f8ef7;
+  --accent2:    #f76b4f;
+  --success:    #4fbe8a;
+  --text:       #e8eaf0;
+  --text-muted: #7a7f8e;
+  --font-ui:    'DM Sans', sans-serif;
+  --font-mono:  'Space Mono', monospace;
+  --radius:     8px;
+  --sidebar-w:  260px;
+  --toolbar-h:  52px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font-ui); background: var(--bg); color: var(--text); font-size: 14px; }
+
+/* ---- SCREENS ---- */
+.screen { position: fixed; inset: 0; display: none; }
+.screen.active { display: flex; }
+
+/* ============================================================
+   LOGIN SCREEN
+   ============================================================ */
+#login-screen {
+  align-items: center; justify-content: center;
+  background: var(--bg);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(79,142,247,.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(247,107,79,.06) 0%, transparent 50%);
+}
+.login-card {
+  width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px;
+}
+.login-logo {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -1px;
+  margin-bottom: 6px;
+}
+.login-sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-bottom: 32px;
+}
+.form-group { margin-bottom: 16px; }
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-bottom: 6px;
+}
+.form-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  outline: none;
+  transition: border-color .2s;
+}
+.form-input:focus { border-color: var(--accent); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border: none; border-radius: var(--radius);
+  padding: 10px 18px;
+  font-family: var(--font-ui); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: opacity .15s, transform .1s;
+  white-space: nowrap;
+}
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--accent); color: #fff; width: 100%; padding: 12px; }
+.btn-primary:hover { opacity: .9; }
+.btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--text-muted); color: var(--text); }
+.btn-danger { background: rgba(247,107,79,.15); color: var(--accent2); border: 1px solid rgba(247,107,79,.25); }
+.btn-danger:hover { background: rgba(247,107,79,.25); }
+.btn-success { background: rgba(79,190,138,.15); color: var(--success); border: 1px solid rgba(79,190,138,.25); }
+.btn-success:hover { background: rgba(79,190,138,.25); }
+.error-msg { color: var(--accent2); font-size: 13px; margin-top: 12px; text-align: center; min-height: 20px; }
+
+/* ============================================================
+   DASHBOARD SCREEN
+   ============================================================ */
+#dashboard-screen { flex-direction: column; }
+
+.topbar {
+  height: 52px; min-height: 52px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 20px; gap: 12px;
+}
+.topbar-logo { font-family: var(--font-mono); font-weight: 700; color: var(--accent); font-size: 15px; }
+.topbar-sep { width: 1px; height: 20px; background: var(--border); }
+.topbar-title { font-weight: 500; color: var(--text); }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.user-badge {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 4px 12px 4px 8px;
+}
+.user-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+.user-name { font-size: 13px; }
+.role-tag {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  padding: 2px 6px; border-radius: 4px; text-transform: uppercase;
+}
+.role-teacher { background: rgba(247,107,79,.15); color: var(--accent2); }
+.role-student { background: rgba(79,142,247,.15); color: var(--accent); }
+
+.dash-body { flex: 1; display: flex; overflow: hidden; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w); min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-section { padding: 16px; }
+.sidebar-label {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
+}
+.session-list { flex: 1; overflow-y: auto; padding: 8px; }
+.session-item {
+  padding: 12px 12px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  margin-bottom: 4px;
+  border: 1px solid transparent;
+  transition: background .15s, border-color .15s;
+}
+.session-item:hover { background: var(--surface2); }
+.session-item.active-session { background: rgba(79,142,247,.1); border-color: rgba(79,142,247,.3); }
+.session-item.selected { background: var(--surface2); border-color: var(--border); }
+.session-title { font-weight: 500; font-size: 13px; margin-bottom: 3px; }
+.session-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 6px; align-items: center; }
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-active { background: var(--success); box-shadow: 0 0 6px var(--success); animation: pulse 2s infinite; }
+.status-closed { background: var(--text-muted); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* Main area */
+.dash-main { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.dash-content { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* Teacher panel */
+.teacher-panel { margin-bottom: 24px; }
+.panel-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.panel-card h3 { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
+.form-row { display: flex; gap: 10px; }
+.form-row .form-input { flex: 1; }
+
+/* User management table */
+.user-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.user-table th {
+  font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .5px;
+  padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left;
+}
+.user-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.user-table tr:last-child td { border-bottom: none; }
+.user-table tr:hover td { background: var(--surface2); }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty-state svg { margin-bottom: 16px; opacity: .3; }
+.empty-title { font-size: 16px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 18px;
+  font-size: 13px;
+  z-index: 9999;
+  transform: translateY(80px); opacity: 0;
+  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.ok { border-left: 3px solid var(--success); }
+.toast.err { border-left: 3px solid var(--accent2); }
+
+/* ============================================================
+   CANVAS SCREEN
+   ============================================================ */
+#canvas-screen { flex-direction: column; }
+
+.canvas-topbar {
+  height: var(--toolbar-h); min-height: var(--toolbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 14px; gap: 10px;
+}
+.canvas-session-name { font-weight: 600; font-size: 14px; }
+.canvas-class-tag {
+  font-family: var(--font-mono); font-size: 11px;
+  background: rgba(79,142,247,.15); color: var(--accent);
+  padding: 3px 8px; border-radius: 4px;
+}
+.canvas-topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.auto-save-indicator { font-size: 12px; color: var(--text-muted); }
+
+/* Toolbar (left side) */
+.canvas-toolbar {
+  position: fixed; left: 10px; top: 50%;
+  transform: translateY(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px 6px;
+  display: flex; flex-direction: column; gap: 4px;
+  z-index: 100;
+}
+.tool-btn {
+  width: 36px; height: 36px;
+  border: none; border-radius: var(--radius);
+  background: transparent; color: var(--text-muted);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 16px; transition: all .15s; position: relative;
+}
+.tool-btn:hover { background: var(--surface2); color: var(--text); }
+.tool-btn.active { background: rgba(79,142,247,.2); color: var(--accent); }
+.tool-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* Properties bar (top of canvas) */
+.props-bar {
+  position: fixed; top: calc(var(--toolbar-h) + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 12px;
+  display: flex; align-items: center; gap: 10px;
+  z-index: 100;
+}
+.props-bar label { font-size: 12px; color: var(--text-muted); }
+.color-swatch {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer; outline: none;
+  appearance: none; -webkit-appearance: none;
+  padding: 0; overflow: hidden;
+}
+.color-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+.color-swatch::-webkit-color-swatch { border: none; border-radius: 50%; }
+.size-slider { width: 80px; accent-color: var(--accent); }
+.opacity-input {
+  width: 50px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--text); padding: 3px 6px; font-size: 12px;
+  text-align: center;
+}
+
+/* Canvas wrapper */
+.canvas-area { flex: 1; position: relative; overflow: hidden; }
+#main-canvas { display: block; cursor: crosshair; }
+
+/* Timer widget */
+.timer-widget {
+  position: fixed; right: 14px; top: calc(var(--toolbar-h) + 12px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  z-index: 100;
+  min-width: 160px;
+  text-align: center;
+  display: none;
+}
+.timer-widget.visible { display: block; }
+.timer-display {
+  font-family: var(--font-mono); font-size: 32px; font-weight: 700;
+  color: var(--text); letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+.timer-display.warning { color: var(--accent2); }
+.timer-btns { display: flex; gap: 6px; justify-content: center; margin-bottom: 10px; }
+.timer-presets { display: flex; gap: 5px; justify-content: center; }
+.preset-btn {
+  font-family: var(--font-mono); font-size: 11px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text-muted); border-radius: 4px;
+  padding: 3px 8px; cursor: pointer;
+}
+.preset-btn:hover { color: var(--text); border-color: var(--accent); }
+
+/* Mindmap node */
+.mindmap-node {
+  position: absolute;
+  background: var(--surface2);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  padding: 8px 14px;
+  min-width: 80px;
+  text-align: center;
+  cursor: move;
+  user-select: none;
+  font-size: 13px;
+  z-index: 50;
+}
+.mindmap-node.selected { border-color: var(--accent2); box-shadow: 0 0 0 2px rgba(247,107,79,.3); }
+.mindmap-node:focus { outline: none; }
+
+/* PDF overlay */
+.pdf-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  align-items: center; justify-content: center;
+}
+.pdf-overlay.open { display: flex; }
+.pdf-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  width: 420px;
+}
+.pdf-modal h3 { margin-bottom: 16px; font-size: 16px; }
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 36px;
+  text-align: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: rgba(79,142,247,.05);
+}
+.drop-zone-icon { font-size: 32px; margin-bottom: 8px; }
+.modal-btns { display: flex; gap: 10px; margin-top: 16px; justify-content: flex-end; }
+
+/* Text input overlay */
+#text-input-overlay {
+  display: none;
+  position: fixed; z-index: 200;
+}
+#text-input-field {
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  color: var(--text);
+  padding: 6px 10px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  border-radius: var(--radius);
+  outline: none;
+  min-width: 120px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOGIN SCREEN
+     ============================================================ -->
+<div id="login-screen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">ClassBoard</div>
+    <div class="login-sub">Bảng tương tác lớp học · DNU</div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input class="form-input" id="login-email" type="email" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mật khẩu</label>
+      <input class="form-input" id="login-pass" type="password" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary" id="login-btn">Đăng nhập</button>
+    <div class="error-msg" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     DASHBOARD SCREEN
+     ============================================================ -->
+<div id="dashboard-screen" class="screen">
+  <div class="topbar">
+    <span class="topbar-logo">ClassBoard</span>
+    <div class="topbar-sep"></div>
+    <span class="topbar-title">DNU Interactive Whiteboard</span>
+    <div class="topbar-right">
+      <div class="user-badge">
+        <div class="user-avatar" id="dash-avatar">?</div>
+        <span class="user-name" id="dash-name">—</span>
+        <span class="role-tag" id="dash-role-tag">—</span>
+      </div>
+      <button class="btn btn-ghost" id="logout-btn">Đăng xuất</button>
+    </div>
+  </div>
+  <div class="dash-body">
+    <!-- Sidebar: session history -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Buổi học</div>
+      </div>
+      <div class="session-list" id="session-list">
+        <div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Đang tải...</div>
+      </div>
+    </div>
+    <!-- Main -->
+    <div class="dash-main">
+      <div class="dash-content" id="dash-content">
+        <!-- Teacher content injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     CANVAS SCREEN
+     ============================================================ -->
+<div id="canvas-screen" class="screen">
+  <div class="canvas-topbar">
+    <button class="btn btn-ghost" id="back-to-dash" style="padding:6px 12px;font-size:13px">← Dashboard</button>
+    <div class="canvas-class-tag" id="canvas-class-tag">—</div>
+    <span class="canvas-session-name" id="canvas-session-name">—</span>
+    <div class="canvas-topbar-right">
+      <span class="auto-save-indicator" id="save-indicator">●  Đã lưu</span>
+      <button class="btn btn-ghost" id="toggle-timer-btn" style="font-size:13px;padding:6px 12px">⏱ Timer</button>
+      <button class="btn btn-ghost" id="open-pdf-btn" style="font-size:13px;padding:6px 12px">📄 PDF/Ảnh</button>
+      <button class="btn btn-danger" id="close-session-btn" style="font-size:13px;padding:6px 12px;display:none">■ Kết thúc</button>
+    </div>
+  </div>
+
+  <!-- Left toolbar -->
+  <div class="canvas-toolbar">
+    <button class="tool-btn active" data-tool="select" title="Select (V)">⊹</button>
+    <button class="tool-btn" data-tool="pan" title="Pan (H)">✋</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" data-tool="pen" title="Bút vẽ (P)">✏️</button>
+    <button class="tool-btn" data-tool="line" title="Đường thẳng (L)">╱</button>
+    <button class="tool-btn" data-tool="rect" title="Hình chữ nhật (R)">▭</button>
+    <button class="tool-btn" data-tool="circle" title="Hình tròn (C)">○</button>
+    <button class="tool-btn" data-tool="arrow" title="Mũi tên (A)">→</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" data-tool="text" title="Văn bản (T)">T</button>
+    <button class="tool-btn" data-tool="mindmap" title="Mindmap node (M)">◈</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" data-tool="eraser" title="Tẩy (E)">⌫</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" id="undo-btn" title="Undo (Ctrl+Z)">↩</button>
+    <button class="tool-btn" id="redo-btn" title="Redo (Ctrl+Y)">↪</button>
+    <div class="tool-sep"></div>
+    <button class="tool-btn" id="clear-btn" title="Xóa tất cả" style="color:var(--accent2)">🗑</button>
+  </div>
+
+  <!-- Props bar -->
+  <div class="props-bar" id="props-bar">
+    <label>Màu</label>
+    <input type="color" class="color-swatch" id="stroke-color" value="#4f8ef7">
+    <label>Nền</label>
+    <input type="color" class="color-swatch" id="fill-color" value="#00000000">
+    <label>Cỡ</label>
+    <input type="range" class="size-slider" id="stroke-size" min="1" max="40" value="3">
+    <span id="size-label" style="font-family:var(--font-mono);font-size:12px;width:20px">3</span>
+  </div>
+
+  <!-- Canvas area -->
+  <div class="canvas-area" id="canvas-area">
+    <canvas id="main-canvas"></canvas>
+  </div>
+
+  <!-- Timer widget -->
+  <div class="timer-widget" id="timer-widget">
+    <div class="timer-display" id="timer-display">05:00</div>
+    <div class="timer-btns">
+      <button class="btn btn-ghost" id="timer-start" style="font-size:12px;padding:5px 10px">▶</button>
+      <button class="btn btn-ghost" id="timer-pause" style="font-size:12px;padding:5px 10px">⏸</button>
+      <button class="btn btn-ghost" id="timer-reset" style="font-size:12px;padding:5px 10px">↺</button>
+    </div>
+    <div class="timer-presets">
+      <button class="preset-btn" data-mins="3">3m</button>
+      <button class="preset-btn" data-mins="5">5m</button>
+      <button class="preset-btn" data-mins="10">10m</button>
+      <button class="preset-btn" data-mins="15">15m</button>
+    </div>
+  </div>
+
+  <!-- PDF/Image upload modal -->
+  <div class="pdf-overlay" id="pdf-overlay">
+    <div class="pdf-modal">
+      <h3>📎 Thêm ảnh / PDF vào canvas</h3>
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-zone-icon">🖼</div>
+        <div>Kéo thả file hoặc <strong>click để chọn</strong></div>
+        <div style="font-size:12px;margin-top:6px;color:var(--text-muted)">PNG, JPG, GIF, PDF</div>
+        <input type="file" id="file-input" accept="image/*,.pdf" style="display:none">
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-ghost" id="close-pdf-modal">Hủy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Text input overlay -->
+  <div id="text-input-overlay">
+    <input type="text" id="text-input-field" placeholder="Nhập văn bản...">
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────
+const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE'; // <-- thay bằng URL deploy GAS
+
+// ─── STATE ────────────────────────────────────────────────────
+let currentUser = null;
+let sessions = [];
+let selectedSession = null;
+let autoSaveTimer = null;
+let unsaved = false;
+
+// Canvas state
+const canvas = document.getElementById('main-canvas');
+const ctx = canvas.getContext('2d');
+let tool = 'select';
+let isDrawing = false;
+let isPanning = false;
+let startX, startY, lastX, lastY;
+let panOffsetX = 0, panOffsetY = 0;
+let panStartX, panStartY;
+let strokeColor = '#4f8ef7';
+let fillColor = null; // null = transparent
+let strokeSize = 3;
+let history = []; // undo/redo stacks
+let redoStack = [];
+let objects = []; // all drawn objects
+let selectedObject = null;
+let mindmapNodes = []; // DOM nodes
+
+// Timer
+let timerSeconds = 300;
+let timerRunning = false;
+let timerInterval = null;
+
+// ─── HELPERS ──────────────────────────────────────────────────
+function $(id) { return document.getElementById(id); }
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $(id).classList.add('active');
+}
+function toast(msg, type = 'ok') {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+async function api(method, params) {
+  try {
+    if (method === 'GET') {
+      const qs = new URLSearchParams(params).toString();
+      const r = await fetch(`${GAS_URL}?${qs}`);
+      return await r.json();
+    } else {
+      const r = await fetch(GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
+      return await r.json();
+    }
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: 'Lỗi kết nối' };
+  }
+}
+
+// ─── AUTH ─────────────────────────────────────────────────────
+$('login-btn').addEventListener('click', doLogin);
+$('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+$('logout-btn').addEventListener('click', () => {
+  currentUser = null;
+  localStorage.removeItem('cb_user');
+  showScreen('login-screen');
+  $('login-error').textContent = '';
+  $('login-email').value = '';
+  $('login-pass').value = '';
+});
+
+async function doLogin() {
+  const email = $('login-email').value.trim();
+  const pass = $('login-pass').value;
+  $('login-error').textContent = '';
+  if (!email || !pass) { $('login-error').textContent = 'Vui lòng nhập đầy đủ'; return; }
+  $('login-btn').textContent = 'Đang đăng nhập...';
+  $('login-btn').disabled = true;
+  const res = await api('GET', { action: 'login', email, password: pass });
+  $('login-btn').textContent = 'Đăng nhập';
+  $('login-btn').disabled = false;
+  if (res.ok) {
+    currentUser = res.user;
+    localStorage.setItem('cb_user', JSON.stringify(currentUser));
+    initDashboard();
+  } else {
+    $('login-error').textContent = res.error || 'Đăng nhập thất bại';
+  }
+}
+
+// Auto-login
+const saved = localStorage.getItem('cb_user');
+if (saved) { currentUser = JSON.parse(saved); initDashboard(); }
+
+// ─── DASHBOARD ────────────────────────────────────────────────
+async function initDashboard() {
+  showScreen('dashboard-screen');
+  // Header
+  const initials = (currentUser.name || currentUser.email).split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  $('dash-avatar').textContent = initials;
+  $('dash-name').textContent = currentUser.name || currentUser.email;
+  $('dash-role-tag').textContent = currentUser.role === 'teacher' ? 'Giáo viên' : 'Sinh viên';
+  $('dash-role-tag').className = `role-tag role-${currentUser.role}`;
+
+  renderDashContent();
+  await loadSessions();
+}
+
+function renderDashContent() {
+  const c = $('dash-content');
+  if (currentUser.role === 'teacher') {
+    c.innerHTML = `
+      <div class="teacher-panel">
+        <div class="panel-card">
+          <h3>➕ Tạo buổi học mới</h3>
+          <div class="form-row" style="margin-bottom:10px">
+            <input class="form-input" id="new-class" placeholder="Tên lớp (VD: AENG2A)" style="max-width:180px">
+            <input class="form-input" id="new-title" placeholder="Tiêu đề buổi học">
+          </div>
+          <button class="btn btn-primary" id="create-session-btn" style="width:auto;padding:10px 24px">Tạo session</button>
+        </div>
+        <div class="panel-card">
+          <h3>👥 Quản lý sinh viên</h3>
+          <div class="form-row" style="margin-bottom:10px">
+            <input class="form-input" id="new-sv-name" placeholder="Họ tên">
+            <input class="form-input" id="new-sv-email" placeholder="Email">
+            <input class="form-input" id="new-sv-pass" placeholder="Mật khẩu" type="password">
+            <input class="form-input" id="new-sv-class" placeholder="Lớp" style="max-width:120px">
+          </div>
+          <button class="btn btn-success" id="add-user-btn" style="width:auto;padding:10px 20px">Thêm SV</button>
+          <div id="user-table-wrap" style="margin-top:16px"></div>
+        </div>
+      </div>`;
+    $('create-session-btn').addEventListener('click', createSession);
+    $('add-user-btn').addEventListener('click', addUser);
+    loadUsers();
+  } else {
+    c.innerHTML = `
+      <div style="padding:20px 0">
+        <div style="font-size:22px;font-weight:600;margin-bottom:6px">Xin chào, ${currentUser.name || currentUser.email} 👋</div>
+        <div style="color:var(--text-muted);margin-bottom:24px">Lớp: <strong>${currentUser.class || '—'}</strong></div>
+        <div style="color:var(--text-muted);font-size:14px">← Chọn buổi học từ danh sách để vào bảng tương tác</div>
+      </div>`;
+  }
+}
+
+async function loadSessions() {
+  const res = await api('GET', { action: 'getSessions', token: currentUser.email });
+  if (!res.ok) { toast('Không tải được danh sách buổi học', 'err'); return; }
+  sessions = res.sessions || [];
+  renderSessionList();
+}
+
+function renderSessionList() {
+  const list = $('session-list');
+  if (!sessions.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">Chưa có buổi học nào</div>`;
+    return;
+  }
+  list.innerHTML = sessions.map(s => `
+    <div class="session-item ${s.status==='active'?'active-session':''}" data-id="${s.id}">
+      <div class="session-title">${s.title}</div>
+      <div class="session-meta">
+        <span class="status-dot status-${s.status}"></span>
+        <span>${s.status === 'active' ? 'Đang hoạt động' : 'Đã kết thúc'}</span>
+        · <span>${s.class}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:3px">${s.date}</div>
+    </div>`).join('');
+
+  list.querySelectorAll('.session-item').forEach(el => {
+    el.addEventListener('click', () => openSession(el.dataset.id));
+  });
+}
+
+async function createSession() {
+  const cls = $('new-class').value.trim();
+  const title = $('new-title').value.trim();
+  if (!cls || !title) { toast('Nhập tên lớp và tiêu đề', 'err'); return; }
+  const res = await api('POST', { action: 'createSession', token: currentUser.email, class: cls, title });
+  if (res.ok) {
+    toast('✅ Đã tạo buổi học');
+    $('new-class').value = ''; $('new-title').value = '';
+    await loadSessions();
+    openSession(res.session.id);
+  } else { toast(res.error || 'Lỗi tạo session', 'err'); }
+}
+
+async function loadUsers() {
+  const res = await api('GET', { action: 'getUsers', token: currentUser.email });
+  if (!res.ok) return;
+  const users = (res.users || []).filter(u => u.role === 'student');
+  const wrap = $('user-table-wrap');
+  if (!users.length) { wrap.innerHTML = '<div style="color:var(--text-muted);font-size:13px">Chưa có sinh viên nào</div>'; return; }
+  wrap.innerHTML = `<table class="user-table">
+    <thead><tr><th>Họ tên</th><th>Email</th><th>Lớp</th><th></th></tr></thead>
+    <tbody>${users.map(u=>`<tr>
+      <td>${u.name}</td><td>${u.email}</td><td>${u.class}</td>
+      <td><button class="btn btn-danger" style="font-size:11px;padding:3px 8px" data-email="${u.email}">Xóa</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+  wrap.querySelectorAll('[data-email]').forEach(btn => {
+    btn.addEventListener('click', () => deleteUser(btn.dataset.email));
+  });
+}
+
+async function addUser() {
+  const name = $('new-sv-name').value.trim();
+  const email = $('new-sv-email').value.trim();
+  const pass = $('new-sv-pass').value;
+  const cls = $('new-sv-class').value.trim();
+  if (!name || !email || !pass) { toast('Nhập đủ thông tin SV', 'err'); return; }
+  const res = await api('POST', { action: 'addUser', token: currentUser.email, name, email, password: pass, role: 'student', studentClass: cls });
+  if (res.ok) {
+    toast('✅ Đã thêm sinh viên');
+    $('new-sv-name').value=''; $('new-sv-email').value=''; $('new-sv-pass').value=''; $('new-sv-class').value='';
+    loadUsers();
+  } else { toast(res.error || 'Lỗi thêm SV', 'err'); }
+}
+
+async function deleteUser(email) {
+  if (!confirm(`Xóa tài khoản ${email}?`)) return;
+  const res = await api('POST', { action: 'deleteUser', token: currentUser.email, email });
+  if (res.ok) { toast('Đã xóa'); loadUsers(); }
+  else toast(res.error, 'err');
+}
+
+// ─── SESSION → CANVAS ─────────────────────────────────────────
+async function openSession(sessionId) {
+  const session = sessions.find(s => s.id === sessionId);
+  if (!session) return;
+  selectedSession = session;
+
+  // Update sidebar highlight
+  document.querySelectorAll('.session-item').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`[data-id="${sessionId}"]`)?.classList.add('selected');
+
+  // Load canvas data
+  const res = await api('GET', { action: 'getCanvas', token: currentUser.email, sessionId });
+  if (!res.ok) { toast('Không tải được canvas', 'err'); return; }
+
+  // Setup canvas screen
+  $('canvas-class-tag').textContent = session.class;
+  $('canvas-session-name').textContent = session.title;
+
+  // Show close button only for active sessions (teacher only)
+  const closeBtn = $('close-session-btn');
+  closeBtn.style.display = (currentUser.role === 'teacher' && session.status === 'active') ? '' : 'none';
+
+  showScreen('canvas-screen');
+  initCanvas(res.canvas);
+}
+
+$('back-to-dash').addEventListener('click', () => {
+  if (unsaved) saveCanvasToServer();
+  showScreen('dashboard-screen');
+  loadSessions();
+});
+
+$('close-session-btn').addEventListener('click', async () => {
+  if (!confirm('Kết thúc buổi học này?')) return;
+  await saveCanvasToServer();
+  const res = await api('POST', { action: 'closeSession', token: currentUser.email, sessionId: selectedSession.id });
+  if (res.ok) { toast('✅ Đã kết thúc buổi học'); $('close-session-btn').style.display = 'none'; }
+});
+
+// ─── CANVAS ENGINE ────────────────────────────────────────────
+function initCanvas(canvasData) {
+  resizeCanvas();
+  panOffsetX = 0; panOffsetY = 0;
+  objects = [];
+  redoStack = [];
+  mindmapNodes.forEach(n => n.el.remove());
+  mindmapNodes = [];
+
+  // Replay saved objects
+  if (canvasData && canvasData.objects) {
+    objects = canvasData.objects.filter(o => o.type !== 'mindmap');
+    // Rebuild mindmap nodes
+    canvasData.objects.filter(o => o.type === 'mindmap').forEach(o => createMindmapNode(o.x, o.y, o.text, o.id));
+  }
+  redrawAll();
+  saveHistory();
+  scheduleAutoSave();
+}
+
+function resizeCanvas() {
+  const area = $('canvas-area');
+  canvas.width = area.clientWidth;
+  canvas.height = area.clientHeight;
+}
+window.addEventListener('resize', () => { resizeCanvas(); redrawAll(); });
+
+// ─── DRAW ─────────────────────────────────────────────────────
+function redrawAll() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(panOffsetX, panOffsetY);
+  objects.forEach(drawObject);
+  // Draw preview
+  if (previewObject) drawObject(previewObject);
+  ctx.restore();
+}
+
+function drawObject(obj) {
+  ctx.save();
+  ctx.strokeStyle = obj.stroke || '#4f8ef7';
+  ctx.fillStyle = obj.fill || 'transparent';
+  ctx.lineWidth = obj.size || 3;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  switch (obj.type) {
+    case 'pen':
+      if (!obj.points || obj.points.length < 2) break;
+      ctx.beginPath();
+      ctx.moveTo(obj.points[0].x, obj.points[0].y);
+      for (let i = 1; i < obj.points.length; i++) ctx.lineTo(obj.points[i].x, obj.points[i].y);
+      ctx.stroke();
+      break;
+    case 'line':
+      ctx.beginPath(); ctx.moveTo(obj.x1, obj.y1); ctx.lineTo(obj.x2, obj.y2); ctx.stroke();
+      break;
+    case 'rect':
+      ctx.beginPath(); ctx.rect(obj.x, obj.y, obj.w, obj.h);
+      if (obj.fill && obj.fill !== 'transparent' && obj.fill !== '#00000000') ctx.fill();
+      ctx.stroke();
+      break;
+    case 'circle':
+      ctx.beginPath();
+      ctx.ellipse(obj.cx, obj.cy, Math.abs(obj.rx), Math.abs(obj.ry), 0, 0, Math.PI*2);
+      if (obj.fill && obj.fill !== 'transparent' && obj.fill !== '#00000000') ctx.fill();
+      ctx.stroke();
+      break;
+    case 'arrow':
+      drawArrow(ctx, obj.x1, obj.y1, obj.x2, obj.y2, obj.stroke, obj.size);
+      break;
+    case 'text':
+      ctx.fillStyle = obj.stroke;
+      ctx.font = `${obj.size*4 || 16}px DM Sans, sans-serif`;
+      ctx.fillText(obj.text, obj.x, obj.y);
+      break;
+    case 'image':
+      if (obj._img) {
+        ctx.drawImage(obj._img, obj.x, obj.y, obj.w, obj.h);
+      } else {
+        const img = new Image();
+        img.onload = () => { obj._img = img; redrawAll(); };
+        img.src = obj.src;
+      }
+      break;
+  }
+  ctx.restore();
+}
+
+function drawArrow(ctx, x1, y1, x2, y2, color, size) {
+  const headSize = (size || 3) * 4 + 6;
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headSize * Math.cos(angle - Math.PI/6), y2 - headSize * Math.sin(angle - Math.PI/6));
+  ctx.lineTo(x2 - headSize * Math.cos(angle + Math.PI/6), y2 - headSize * Math.sin(angle + Math.PI/6));
+  ctx.closePath();
+  ctx.fillStyle = color || '#4f8ef7';
+  ctx.fill();
+}
+
+// ─── MOUSE EVENTS ─────────────────────────────────────────────
+let currentPenPoints = [];
+let previewObject = null;
+
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: clientX - rect.left - panOffsetX,
+    y: clientY - rect.top - panOffsetY,
+  };
+}
+
+canvas.addEventListener('mousedown', onPointerDown);
+canvas.addEventListener('mousemove', onPointerMove);
+canvas.addEventListener('mouseup', onPointerUp);
+canvas.addEventListener('mouseleave', onPointerUp);
+canvas.addEventListener('touchstart', onPointerDown, { passive: false });
+canvas.addEventListener('touchmove', onPointerMove, { passive: false });
+canvas.addEventListener('touchend', onPointerUp);
+
+function onPointerDown(e) {
+  e.preventDefault();
+  if (currentUser.role === 'student') return; // students read-only
+  if (tool === 'mindmap') { const p = getPos(e); createMindmapNode(p.x, p.y); return; }
+  if (tool === 'text') { const p = getPos(e); showTextInput(p.x, p.y); return; }
+
+  const p = getPos(e);
+  startX = p.x; startY = p.y;
+  lastX = p.x; lastY = p.y;
+
+  if (tool === 'pan' || e.button === 2) {
+    isPanning = true;
+    panStartX = e.clientX - panOffsetX;
+    panStartY = e.clientY - panOffsetY;
+    canvas.style.cursor = 'grabbing';
+    return;
+  }
+  if (tool === 'select') { handleSelectDown(p); return; }
+  isDrawing = true;
+  if (tool === 'pen') currentPenPoints = [{ x: p.x, y: p.y }];
+}
+
+function onPointerMove(e) {
+  e.preventDefault();
+  const p = getPos(e);
+
+  if (isPanning) {
+    panOffsetX = e.clientX - panStartX;
+    panOffsetY = e.clientY - panStartY;
+    redrawAll(); return;
+  }
+  if (!isDrawing) return;
+
+  if (tool === 'pen') {
+    currentPenPoints.push({ x: p.x, y: p.y });
+    previewObject = { type:'pen', points: currentPenPoints, stroke: strokeColor, size: strokeSize };
+    redrawAll(); return;
+  }
+
+  // Shape preview
+  switch (tool) {
+    case 'line':
+      previewObject = { type:'line', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
+    case 'rect':
+      previewObject = { type:'rect', x:startX, y:startY, w:p.x-startX, h:p.y-startY, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
+    case 'circle':
+      previewObject = { type:'circle', cx:(startX+p.x)/2, cy:(startY+p.y)/2, rx:(p.x-startX)/2, ry:(p.y-startY)/2, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
+    case 'arrow':
+      previewObject = { type:'arrow', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
+    case 'eraser':
+      eraseAt(p.x, p.y); return;
+  }
+  redrawAll();
+}
+
+function onPointerUp(e) {
+  if (isPanning) { isPanning = false; canvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair'; return; }
+  if (!isDrawing) return;
+  isDrawing = false;
+  const p = e.touches ? getPos({clientX:e.changedTouches[0].clientX, clientY:e.changedTouches[0].clientY}) : getPos(e);
+
+  let obj = null;
+  switch (tool) {
+    case 'pen':
+      if (currentPenPoints.length > 1) obj = { type:'pen', points:[...currentPenPoints], stroke:strokeColor, size:strokeSize };
+      currentPenPoints = []; break;
+    case 'line':   obj = { type:'line', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
+    case 'rect':   obj = { type:'rect', x:startX, y:startY, w:p.x-startX, h:p.y-startY, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
+    case 'circle': obj = { type:'circle', cx:(startX+p.x)/2, cy:(startY+p.y)/2, rx:(p.x-startX)/2, ry:(p.y-startY)/2, stroke:strokeColor, fill:fillColor, size:strokeSize }; break;
+    case 'arrow':  obj = { type:'arrow', x1:startX, y1:startY, x2:p.x, y2:p.y, stroke:strokeColor, size:strokeSize }; break;
+  }
+  previewObject = null;
+  if (obj) { objects.push(obj); saveHistory(); markUnsaved(); }
+  redrawAll();
+}
+
+// Eraser
+function eraseAt(x, y) {
+  const r = strokeSize * 4;
+  objects = objects.filter(obj => {
+    if (obj.type === 'pen') return !obj.points.some(pt => dist(pt.x, pt.y, x, y) < r);
+    if (obj.type === 'text') return dist(obj.x, obj.y, x, y) > r * 2;
+    return true; // shapes: simplified
+  });
+  markUnsaved(); redrawAll();
+}
+function dist(x1,y1,x2,y2) { return Math.sqrt((x2-x1)**2+(y2-y1)**2); }
+
+// Select (basic)
+function handleSelectDown(p) { /* future: drag to move objects */ }
+
+// ─── MINDMAP NODES ────────────────────────────────────────────
+function createMindmapNode(x, y, text = 'Node', id = null) {
+  const nodeId = id || 'mm_' + Date.now();
+  const area = $('canvas-area');
+  const el = document.createElement('div');
+  el.className = 'mindmap-node';
+  el.contentEditable = currentUser.role === 'teacher' ? 'true' : 'false';
+  el.textContent = text;
+  el.style.left = (x + panOffsetX) + 'px';
+  el.style.top = (y + panOffsetY) + 'px';
+  el.dataset.id = nodeId;
+
+  // Drag
+  let dragging = false, dsx, dsy, dox, doy;
+  el.addEventListener('mousedown', ev => {
+    if (ev.target.isContentEditable && document.activeElement === el) return;
+    dragging = true;
+    dsx = ev.clientX; dsy = ev.clientY;
+    dox = el.offsetLeft; doy = el.offsetTop;
+    ev.stopPropagation();
+  });
+  document.addEventListener('mousemove', ev => {
+    if (!dragging) return;
+    el.style.left = (dox + ev.clientX - dsx) + 'px';
+    el.style.top = (doy + ev.clientY - dsy) + 'px';
+    markUnsaved();
+  });
+  document.addEventListener('mouseup', () => { dragging = false; });
+
+  // Delete on double-click (teacher)
+  el.addEventListener('dblclick', () => {
+    if (currentUser.role !== 'teacher') return;
+    if (confirm('Xóa node này?')) {
+      el.remove();
+      mindmapNodes = mindmapNodes.filter(n => n.id !== nodeId);
+      markUnsaved();
+    }
+  });
+
+  el.addEventListener('input', () => markUnsaved());
+
+  area.appendChild(el);
+  mindmapNodes.push({ id: nodeId, el, x, y });
+  markUnsaved();
+  return el;
+}
+
+// ─── TEXT INPUT ───────────────────────────────────────────────
+let textPos = null;
+function showTextInput(x, y) {
+  textPos = { x, y };
+  const overlay = $('text-input-overlay');
+  const rect = canvas.getBoundingClientRect();
+  overlay.style.display = 'block';
+  overlay.style.left = (rect.left + x + panOffsetX) + 'px';
+  overlay.style.top = (rect.top + y + panOffsetY - 20) + 'px';
+  $('text-input-field').value = '';
+  $('text-input-field').focus();
+}
+$('text-input-field').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    const text = $('text-input-field').value.trim();
+    if (text) {
+      objects.push({ type:'text', x:textPos.x, y:textPos.y, text, stroke:strokeColor, size:strokeSize });
+      saveHistory(); markUnsaved(); redrawAll();
+    }
+    $('text-input-overlay').style.display = 'none';
+  }
+  if (e.key === 'Escape') { $('text-input-overlay').style.display = 'none'; }
+});
+
+// ─── TOOLBAR ──────────────────────────────────────────────────
+document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    tool = btn.dataset.tool;
+    document.querySelectorAll('.tool-btn[data-tool]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    canvas.style.cursor = tool === 'pan' ? 'grab' : tool === 'eraser' ? 'cell' : tool === 'select' ? 'default' : 'crosshair';
+  });
+});
+$('undo-btn').addEventListener('click', undo);
+$('redo-btn').addEventListener('click', redo);
+$('clear-btn').addEventListener('click', () => {
+  if (!confirm('Xóa toàn bộ canvas?')) return;
+  objects = []; mindmapNodes.forEach(n=>n.el.remove()); mindmapNodes=[];
+  saveHistory(); markUnsaved(); redrawAll();
+});
+
+// Props
+$('stroke-color').addEventListener('input', e => strokeColor = e.target.value);
+$('fill-color').addEventListener('input', e => fillColor = e.target.value);
+$('stroke-size').addEventListener('input', e => {
+  strokeSize = +e.target.value;
+  $('size-label').textContent = strokeSize;
+});
+
+// ─── UNDO/REDO ────────────────────────────────────────────────
+function saveHistory() {
+  history.push(JSON.parse(JSON.stringify(objects)));
+  if (history.length > 60) history.shift();
+  redoStack = [];
+}
+function undo() {
+  if (history.length < 2) return;
+  redoStack.push(history.pop());
+  objects = JSON.parse(JSON.stringify(history[history.length-1]));
+  markUnsaved(); redrawAll();
+}
+function redo() {
+  if (!redoStack.length) return;
+  const next = redoStack.pop();
+  history.push(next);
+  objects = JSON.parse(JSON.stringify(next));
+  markUnsaved(); redrawAll();
+}
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && e.key==='z') { e.preventDefault(); undo(); }
+  if ((e.ctrlKey||e.metaKey) && e.key==='y') { e.preventDefault(); redo(); }
+});
+
+// ─── TIMER ────────────────────────────────────────────────────
+$('toggle-timer-btn').addEventListener('click', () => {
+  const w = $('timer-widget');
+  w.classList.toggle('visible');
+});
+$('timer-start').addEventListener('click', startTimer);
+$('timer-pause').addEventListener('click', pauseTimer);
+$('timer-reset').addEventListener('click', resetTimer);
+document.querySelectorAll('.preset-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    timerSeconds = +btn.dataset.mins * 60;
+    timerRunning = false;
+    clearInterval(timerInterval);
+    updateTimerDisplay();
+  });
+});
+
+function startTimer() {
+  if (timerRunning) return;
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    if (timerSeconds <= 0) { clearInterval(timerInterval); timerRunning = false; toast('⏰ Hết giờ!'); return; }
+    timerSeconds--;
+    updateTimerDisplay();
+  }, 1000);
+}
+function pauseTimer() { timerRunning = false; clearInterval(timerInterval); }
+function resetTimer() { pauseTimer(); timerSeconds = 300; updateTimerDisplay(); }
+function updateTimerDisplay() {
+  const m = String(Math.floor(timerSeconds/60)).padStart(2,'0');
+  const s = String(timerSeconds%60).padStart(2,'0');
+  const el = $('timer-display');
+  el.textContent = `${m}:${s}`;
+  el.className = 'timer-display' + (timerSeconds <= 30 ? ' warning' : '');
+}
+
+// ─── PDF / IMAGE UPLOAD ───────────────────────────────────────
+$('open-pdf-btn').addEventListener('click', () => $('pdf-overlay').classList.add('open'));
+$('close-pdf-modal').addEventListener('click', () => $('pdf-overlay').classList.remove('open'));
+$('drop-zone').addEventListener('click', () => $('file-input').click());
+$('drop-zone').addEventListener('dragover', e => { e.preventDefault(); $('drop-zone').classList.add('drag-over'); });
+$('drop-zone').addEventListener('dragleave', () => $('drop-zone').classList.remove('drag-over'));
+$('drop-zone').addEventListener('drop', e => {
+  e.preventDefault(); $('drop-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+$('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+function handleFile(file) {
+  $('pdf-overlay').classList.remove('open');
+  if (file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = canvas.width * 0.6;
+        const scale = Math.min(1, maxW / img.width);
+        objects.push({ type:'image', x:50, y:50, w:img.width*scale, h:img.height*scale, src:e.target.result, _img:img });
+        saveHistory(); markUnsaved(); redrawAll();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    toast('✅ Đã thêm ảnh lên canvas');
+  } else if (file.type === 'application/pdf') {
+    toast('PDF: kéo thả ảnh chụp từng trang lên canvas nhé (PDF render cần thư viện ngoài)', 'err');
+  }
+}
+
+// ─── SAVE ─────────────────────────────────────────────────────
+function markUnsaved() {
+  unsaved = true;
+  $('save-indicator').textContent = '● Chưa lưu';
+  $('save-indicator').style.color = 'var(--accent2)';
+}
+
+function scheduleAutoSave() {
+  clearInterval(autoSaveTimer);
+  autoSaveTimer = setInterval(() => {
+    if (unsaved) saveCanvasToServer();
+  }, 15000); // auto-save mỗi 15 giây
+}
+
+async function saveCanvasToServer() {
+  if (!selectedSession) return;
+  // Mindmap nodes positions
+  const mmObjects = mindmapNodes.map(n => ({
+    type: 'mindmap',
+    id: n.id,
+    x: parseInt(n.el.style.left) - panOffsetX,
+    y: parseInt(n.el.style.top) - panOffsetY,
+    text: n.el.textContent,
+  }));
+  const canvasData = {
+    objects: [...objects.map(o => { const c={...o}; delete c._img; return c; }), ...mmObjects],
+    background: '#0e0f11',
+  };
+  const res = await api('POST', { action:'saveCanvas', token:currentUser.email, sessionId:selectedSession.id, canvasData });
+  if (res.ok) {
+    unsaved = false;
+    $('save-indicator').textContent = '● Đã lưu';
+    $('save-indicator').style.color = 'var(--success)';
+  }
+}
+
+// Manual save shortcut
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey) && e.key==='s') { e.preventDefault(); saveCanvasToServer(); }
+});
+
+// Right-click pan
+canvas.addEventListener('contextmenu', e => e.preventDefault());
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 2) {
+    isPanning = true;
+    panStartX = e.clientX - panOffsetX;
+    panStartY = e.clientY - panOffsetY;
+    canvas.style.cursor = 'grabbing';
+  }
+});
+</script>
+</body>
+</html>

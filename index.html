@@ -645,7 +645,21 @@ const $=id=>document.getElementById(id);const qq=s=>document.querySelectorAll(s)
 const showScreen=id=>{qq('.screen').forEach(s=>s.classList.remove('active'));$(id).classList.add('active');};
 const toast=(m,t='ok')=>{const e=$('toast');e.textContent=m;e.className='toast show '+t;setTimeout(()=>e.classList.remove('show'),3000);};
 const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-async function api(method,params){try{if(method==='GET'){const r=await fetch(GAS+'?'+new URLSearchParams(params));return r.json();}const r=await fetch(GAS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(params)});return r.json();}catch(e){return{ok:false,error:'Lỗi kết nối: '+e.message};}}
+async function api(method,params){
+  try{
+    if(method==='GET'){
+      const r=await fetch(GAS+'?'+new URLSearchParams(params));
+      return r.json();
+    }
+    // Use text/plain to avoid CORS preflight — GAS parses it via postData.contents
+    const r=await fetch(GAS,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(params)
+    });
+    return r.json();
+  }catch(e){return{ok:false,error:'Lỗi kết nối: '+e.message};}
+}
 
 // ── LOGIN ──────────────────────────────────────────────────────
 qq('.ltab').forEach(t=>t.addEventListener('click',()=>{qq('.ltab').forEach(x=>x.classList.remove('on'));qq('.lpane').forEach(x=>x.classList.remove('on'));t.classList.add('on');$('pane-'+t.dataset.tab).classList.add('on');}));
